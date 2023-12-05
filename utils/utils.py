@@ -5,7 +5,7 @@ from typing import Callable
 from eth_account import Account as EthereumAccount
 
 from loguru import logger
-from config import ACCOUNTS, PROXIES
+from utils.config import ACCOUNTS, PROXIES
 from settings import REMOVE_WALLET, SLEEP_AFTER_WORK_FROM, SLEEP_AFTER_WORK_TO, USE_PROXY
 
 

@@ -24,7 +24,7 @@ def get_module():
 
     return module
 
-def main(module):
+def main():
     module = get_module()
     data = get_wallets()
 
