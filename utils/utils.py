@@ -2,7 +2,7 @@ import asyncio
 import random
 import sys
 from typing import Callable
-from eth_account import Account as EthereumAccount
+import eth_account
 
 from loguru import logger
 from utils.config import ACCOUNTS, PROXIES
@@ -20,7 +20,7 @@ def _async_run_module(module: Callable, account_id: int, key: str, proxy: str):
     try:
         asyncio.run(run_module(module, account_id, key, proxy))
     except Exception as e:
-        logger.error(f'ID: {id} | {get_wallet_address(key)} | An error occurred: {e}.')
+        logger.error(f'ID: {account_id} | {get_wallet_address(key)} | An error occurred: {e}.')
 
     if REMOVE_WALLET:
         remove_wallet_from_files(key, proxy)
@@ -30,7 +30,7 @@ async def run_module(module, account_id, key, proxy):
     await sleep(SLEEP_AFTER_WORK_FROM, SLEEP_AFTER_WORK_TO)
     
 def get_wallet_address(key: str) -> str:
-    account = EthereumAccount.from_key(key)
+    account = eth_account.Account.from_key(key)
     return account.address
 
 def get_wallets():

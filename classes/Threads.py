@@ -18,6 +18,6 @@ class Threads:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             for account in self.data:
                 executor.submit(
-                    _async_run_module, module, account.get('id'), account.get('wallet'), account.get('address')
+                    _async_run_module, module, account.get('id'), account.get('key'), account.get('proxy')
                 )
                 time.sleep(random.randint(WORKER_SLEEP_FROM, WORKER_SLEEP_TO))

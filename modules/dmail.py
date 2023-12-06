@@ -14,13 +14,13 @@ class Dmail(Account):
         
         self.contract = self.get_contract(DMAIL_CONTRACT, DMAIL_ABI)
     
-    def get_random_string(self, text_end: str = None) -> str:
+    def get_random_string(self, text_end: str = '') -> str:
         letters = string.ascii_lowercase + string.digits
         length = random.randint(5, 15)
 
         random_str = ''.join(random.choice(letters) for _ in range(length))
         
-        if not text_end:
+        if text_end != '':
             random_str = random_str + text_end
 
         return (random_str.encode()).hex()

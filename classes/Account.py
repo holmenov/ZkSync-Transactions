@@ -65,7 +65,7 @@ class Account:
         tx_hash = await self.send_raw_transaction(signed_tx)
         
         if wait_complete:
-            self.wait_until_tx_finished(tx_hash)
+            await self.wait_until_tx_finished(tx_hash)
         else:
             return tx_hash
     
@@ -117,14 +117,31 @@ class Account:
         contract = self.w3.eth.contract(address=contract_address, abi=abi)
         return contract
     
-    async def get_tx_data(self, value: int = 0):
-        tx = {
-            'chainId': await self.w3.eth.chain_id,
-            'from': self.address,
-            'value': value,
-            'gasPrice': await self.w3.eth.gas_price,
-            'nonce': await self.w3.eth.get_transaction_count(self.address)
-        }
+    async def get_tx_data(self, value: int = 0, eip_1559: bool = True):
+        if eip_1559:
+            base_fee = (await self.w3.eth.get_block('latest'))['baseFeePerGas']
+            max_fee_per_gas = base_fee
+            max_priority_fee_per_gas = base_fee
+            
+            tx = {
+                'chainId': await self.w3.eth.chain_id,
+                'from': self.address,
+                'value': value,
+                'maxFeePerGas': max_fee_per_gas,
+                'maxPriorityFeePerGas': max_priority_fee_per_gas,
+                'nonce': await self.w3.eth.get_transaction_count(self.address),
+                'type': '0x2'
+            }
+        
+        else:
+            tx = {
+                'chainId': await self.w3.eth.chain_id,
+                'from': self.address,
+                'value': value,
+                'gasPrice': await self.w3.eth.gas_price,
+                'nonce': await self.w3.eth.get_transaction_count(self.address)
+            }
+
         return tx
     
     async def sign(self, transaction):
