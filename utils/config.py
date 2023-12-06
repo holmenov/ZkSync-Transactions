@@ -28,6 +28,9 @@ with open('data/syncswap/classic_pool_data.json') as file:
 with open('data/weth/abi.json') as file:
     WETH_ABI = json.load(file)
 
+with open('data/mint_nft/abi.json') as file:
+    MINT_NFT_ABI = json.load(file)
+
 MAX_APPROVE = 2**256 - 1
 
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"

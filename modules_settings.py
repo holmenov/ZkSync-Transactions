@@ -34,3 +34,6 @@ class WrapETH:
     max_percent = 15
     
     unwrap_eth = True
+
+class MintNFT:
+    nft_address = ''

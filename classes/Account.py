@@ -14,7 +14,7 @@ from utils.utils import sleep
 
 
 class Account:
-    def __init__(self, account_id: int, private_key: str, chain: str, proxy: str | None) -> None:
+    def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
         self.account_id = account_id
         self.private_key = private_key
         self.explorer = 'https://explorer.zksync.io/tx/'

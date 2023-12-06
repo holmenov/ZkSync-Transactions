@@ -8,11 +8,13 @@ from utils.modules import *
 
 def get_module():
     modules = [
-        questionary.Choice('1) Random Module', random_module),
-        questionary.Choice('2) Sending mail via DMail', send_mail),
-        questionary.Choice('3) Deposit and withdraw on EraLend', deposit_eraland),
-        questionary.Choice('4) Swap on SyncSwap', swap_syncswap),
-        questionary.Choice('5) Wrap ETH', wrap_eth),
+        questionary.Choice('1) Random module', random_module),
+        questionary.Choice('2) Random low-cost module', random_low_cost_module),
+        questionary.Choice('3) Sending mail via DMail', send_mail),
+        questionary.Choice('4) Deposit and withdraw on EraLend', deposit_eraland),
+        questionary.Choice('5) Swap on SyncSwap', swap_syncswap),
+        questionary.Choice('6) Wrap ETH', wrap_eth),
+        questionary.Choice('7) Mint NFT', mint_nft),
     ]
     
     module = questionary.select(

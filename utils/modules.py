@@ -1,4 +1,5 @@
 import random
+from modules.mint_nft import MintNFT
 
 import modules_settings as ms
 from modules.dmail import Dmail
@@ -8,7 +9,12 @@ from modules.wrap_eth import WrapETH
 
 
 async def random_module(account_id, key, proxy):
-    modules = [send_mail, deposit_eraland, wrap_eth, swap_syncswap]
+    modules = [send_mail, deposit_eraland, swap_syncswap, wrap_eth, mint_nft]
+    choice = random.choice(modules)
+    await choice(account_id, key, proxy)
+
+async def random_low_cost_module(account_id, key, proxy):
+    modules = [send_mail, wrap_eth, deposit_eraland]
     choice = random.choice(modules)
     await choice(account_id, key, proxy)
 
@@ -68,3 +74,9 @@ async def wrap_eth(account_id, key, proxy):
     await wrap_eth.wrap_eth(
         min_amount, max_amount, decimal, all_amount, min_percent, max_percent, unwrap_eth
     )
+
+async def mint_nft(account_id, key, proxy):
+    nft_address = ms.MintNFT.nft_address
+    
+    mint_nft = MintNFT(account_id, key, proxy)
+    await mint_nft.mint_nft(nft_address)

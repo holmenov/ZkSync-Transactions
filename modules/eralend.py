@@ -7,7 +7,7 @@ from utils.wrappers import check_gas
 
 class Eralend(Account):
     def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
-        super().__init__(account_id=account_id, private_key=private_key, proxy=proxy, chain='zksync')
+        super().__init__(account_id=account_id, private_key=private_key, proxy=proxy)
         
         self.contract = self.get_contract(ERALEND_CONTRACTS['landing'], ERALEND_ABI)
         
