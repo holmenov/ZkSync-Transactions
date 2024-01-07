@@ -5,7 +5,7 @@
 
 class MainSettings:
     # Gwei control
-    MAX_GAS = 40
+    MAX_GAS = 45
 
     # Gas multiplayer
     GAS_MULTIPLAYER = 0.8

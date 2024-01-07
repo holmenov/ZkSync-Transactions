@@ -96,14 +96,14 @@ class Account:
         max_pct: int = 0,
         decimal: int = 6
     ):
-        if not use_percents:
-            if min_amt == max_amt == 0:
-                raise ValueError("Not declared values for 'min_amt' and 'max_amt'.")
-            rnd_pct = random.randint(min_pct, max_pct) / 100
-        else:
-            if min_pct == max_pct == 0:
-                raise ValueError("Not declared values for 'min_pct' and 'max_pct'.")
-            rnd_amt = round(random.uniform(min_amt, max_amt), decimal)
+        if not use_percents and min_amt == max_amt == 0:
+            raise ValueError("Not declared values for 'min_amt' and 'max_amt'.")
+            
+        if use_percents and min_pct == max_pct == 0:
+            raise ValueError("Not declared values for 'min_pct' and 'max_pct'.")
+
+        rnd_pct = random.randint(min_pct, max_pct) / 100
+        rnd_amt = round(random.uniform(min_amt, max_amt), decimal)
 
         if token == 'ETH':
             balance_wei = await self.w3.eth.get_balance(self.address)
@@ -113,9 +113,9 @@ class Account:
             balance = await self.get_balance(ZKSYNC_TOKENS[token])
             amt_wei = int(balance['balance_wei'] * rnd_pct) if use_percents else Account.eth_to_wei(rnd_amt, balance['decimal'])
             amt = balance['balance'] * rnd_pct if use_percents else rnd_amt
-            balance = balance['balance_wei']
+            balance_wei = balance['balance_wei']
         
-        return amt_wei, amt, balance
+        return amt_wei, amt, balance_wei
     
     def get_contract(self, contract_address: str, abi = None):
         contract_address = self.w3.to_checksum_address(contract_address)
