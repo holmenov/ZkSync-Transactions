@@ -1,7 +1,7 @@
 from loguru import logger
-from classes.Account import Account
+from modules.account import Account
 from utils.config import ERALEND_ABI, ERALEND_CONTRACTS
-from utils.utils import sleep
+from utils.utils import async_sleep
 from utils.wrappers import check_gas
 
 
@@ -45,7 +45,7 @@ class Eralend(Account):
         await self.execute_transaction(tx)
         
         if make_withdraw:
-            await sleep(5, 20)
+            await async_sleep(5, 20, logs=False)
             await self.withdraw()
     
     @check_gas

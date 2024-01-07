@@ -2,10 +2,10 @@ import time
 from loguru import logger
 from eth_abi import abi
 
-from classes.Account import Account
-from settings import SLIPPAGE
+from modules.account import Account
+from settings import MainSettings as SETTINGS
 from utils.config import SYNCSWAP_CLASSIC_POOL_ABI, SYNCSWAP_CLASSIC_POOL_DATA_ABI, SYNCSWAP_CONTRACTS, SYNCSWAP_ROUTER_ABI, ZERO_ADDRESS, ZKSYNC_TOKENS
-from utils.utils import sleep
+from utils.utils import async_sleep
 from utils.wrappers import check_gas
 
 class SyncSwap(Account):
@@ -33,7 +33,7 @@ class SyncSwap(Account):
             self.address
         ).call()
         
-        return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
+        return int(min_amount_out - (min_amount_out / 100 * SETTINGS.SLIPPAGE))
     
     @check_gas
     async def swap(
@@ -100,6 +100,6 @@ class SyncSwap(Account):
         await self.execute_transaction(tx)
 
         if swap_reverse:
-            await sleep(5, 15)
+            await async_sleep(5, 15, logs=False)
 
             await self.swap(to_token, from_token, 0.01, 0.01, decimal, True, 100, 100, False)

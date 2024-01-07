@@ -1,33 +1,23 @@
 import asyncio
 import random
 import sys
-from typing import Callable
 import eth_account
 
 from loguru import logger
 from utils.config import ACCOUNTS, PROXIES
-from settings import REMOVE_WALLET, SLEEP_AFTER_WORK_FROM, SLEEP_AFTER_WORK_TO, USE_PROXY
+from settings import MainSettings as SETTINGS
 
 
-async def sleep(sleep_from: int, sleep_to: int):
+async def async_sleep(sleep_from: int, sleep_to: int, logs: bool = True, account_id: int = 0, key: str = '', msg: str = ''):
     delay = random.randint(sleep_from, sleep_to)
     
-    logger.info(f'💤 Sleep {delay} s.')
-    for _ in range(delay):
-        await asyncio.sleep(1)
+    if logs:
+        if not msg:
+            logger.info(f'Account №{account_id} | {get_wallet_address(key)} | Sleep {delay} seconds.')
+        else:
+            logger.info(f'Account №{account_id} | {get_wallet_address(key)} | Sleep {delay} seconds, {msg}.')
 
-def _async_run_module(module: Callable, account_id: int, key: str, proxy: str):
-    try:
-        asyncio.run(run_module(module, account_id, key, proxy))
-    except Exception as e:
-        logger.error(f'ID: {account_id} | {get_wallet_address(key)} | An error occurred: {e}.')
-
-    if REMOVE_WALLET:
-        remove_wallet_from_files(key, proxy)
-
-async def run_module(module, account_id, key, proxy):
-    await module(account_id, key, proxy)
-    await sleep(SLEEP_AFTER_WORK_FROM, SLEEP_AFTER_WORK_TO)
+    for _ in range(delay): await asyncio.sleep(1)
     
 def get_wallet_address(key: str) -> str:
     account = eth_account.Account.from_key(key)
@@ -42,13 +32,13 @@ def get_wallets():
         logger.error('It seems you forgot to enter the wallets.')
         sys.exit()
     
-    accounts_proxy = dict(zip(ACCOUNTS, PROXIES)) if USE_PROXY else ACCOUNTS
+    accounts_proxy = dict(zip(ACCOUNTS, PROXIES)) if SETTINGS.USE_PROXY else ACCOUNTS
 
     wallets = [
         {
             'id': _id,
             'key': key,
-            'proxy': accounts_proxy[key] if USE_PROXY else None
+            'proxy': accounts_proxy[key] if SETTINGS.USE_PROXY else None
         } for _id, key in enumerate(accounts_proxy, start=1)
     ]
 

@@ -1,9 +1,8 @@
 import random
-from hashlib import sha256
 import string
 from loguru import logger
 
-from classes.Account import Account
+from modules.account import Account
 from utils.config import DMAIL_CONTRACT, DMAIL_ABI
 from utils.wrappers import check_gas
 
@@ -27,7 +26,7 @@ class Dmail(Account):
 
     @check_gas
     async def send_mail(self):
-        logger.info(f"{self.account_id} | {self.address} | Send email")
+        logger.info(f"{self.account_id} | {self.address} | Send email via Dmail.")
         
         email = self.get_random_string('@gmail.com')
         theme = self.get_random_string()

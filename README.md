@@ -17,8 +17,7 @@ With this repository, you can do simple transactions on **ZkSync**. You can do a
 4. `pip install -r requirements.txt`.
 5. Paste your proxies into `proxy.txt` in `ip:port@login:password` format
 6. Paste the wallet private key in `accounts.txt`.
-7. Set the general settings in `settings.py`.
-8. Set the routes settings in `modules_settings.py`.
+7. Set the settings in `settings.py`.
 
 ## GENERAL SETTINGS
 
@@ -27,8 +26,8 @@ With this repository, you can do simple transactions on **ZkSync**. You can do a
 - `RANDOM_WALLET` - Random wallet mode [Boolean].
 - `REMOVE_WALLET` - Remove wallet after work [Boolean].
 - `USE_PROXY` - Proxy mode [Boolean].
-- `MAX_WORKERS` - Quantity threads [Integer].
-- `WORKER_SLEEP_FROM`, `WORKER_SLEEP_TO` - Interval in seconds between thread starts [Integer].
+- `START_PERIOD_FROM`, `START_PERIOD_TO` - Period in seconds to run all wallets [Integer].
+- `REPEATS_PER_WALLET` - Module repetitions for each wallet [Integer].
 - `SLEEP_AFTER_WORK_FROM`, `SLEEP_AFTER_WORK_TO` - Seconds to sleep after completing a task [Integer].
 - `ZKSYNC_RPC` - RPC for ZkSync [String].
 - `SLIPPAGE` - Percentage that is lost on exchange [Integer].

@@ -1,11 +1,11 @@
 import random
-from modules.mint_nft import MintNFT
+from modules.modules.mint_nft import MintNFT
 
-import modules_settings as ms
-from modules.dmail import Dmail
-from modules.eralend import Eralend
-from modules.syncswap import SyncSwap
-from modules.wrap_eth import WrapETH
+from settings import ModulesSettings as ms
+from modules.modules.dmail import Dmail
+from modules.modules.eralend import Eralend
+from modules.modules.syncswap import SyncSwap
+from modules.modules.wrap_eth import WrapETH
 
 
 async def random_module(account_id, key, proxy):

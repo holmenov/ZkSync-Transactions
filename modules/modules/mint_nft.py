@@ -1,6 +1,6 @@
 from loguru import logger
 
-from classes.Account import Account
+from modules.account import Account
 from utils.config import MINT_NFT_ABI
 from utils.wrappers import check_gas
 
