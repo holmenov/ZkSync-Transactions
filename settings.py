@@ -21,7 +21,7 @@ class MainSettings:
 
     # Period in seconds to run all wallets
     START_PERIOD_FROM = 1
-    START_PERIOD_TO = 600
+    START_PERIOD_TO = 1800
     
     # Module repetitions for each wallet
     REPEATS_PER_WALLET = 1
@@ -35,6 +35,32 @@ class MainSettings:
 
     # SLIPPAGE FOR SWAPS
     SLIPPAGE = 5
+
+
+# ===========================================================
+#                       OKX SETTINGS
+# ===========================================================
+
+
+class OKXSettings:
+    # You can find this data when withdrawing funds to OKX
+    SYMBOL = 'ETH'
+    CHAIN = 'zkSync Era'
+    FEE = 0.00015
+    
+    # Withdrawal amount (For Withdraw Module)
+    AMOUNT_FROM = 0.006
+    AMOUNT_TO = 0.008
+    
+    # OKX Top Up (For Top Up Module)
+    MIN_AMOUNT = 0.0125
+    MAX_AMOUNT = 0.0105
+    DECIMALS = 5
+
+    # Here you can get your api-key: https://www.okx.cab/ru/account/my-api
+    SECRET_KEY = 'YOUR_DATA'
+    API_KEY = 'YOUR_DATA'
+    PASSPHRASE = 'YOUR_DATA'
 
 
 # ===========================================================

@@ -1,11 +1,14 @@
 import random
-from modules.modules.mint_nft import MintNFT
+from modules.modules.okx_topup import OKXTopUp
 
 from settings import ModulesSettings as ms
+from settings import OKXSettings as OKXSETTINGS
 from modules.modules.dmail import Dmail
 from modules.modules.eralend import Eralend
 from modules.modules.syncswap import SyncSwap
 from modules.modules.wrap_eth import WrapETH
+from modules.modules.mint_nft import MintNFT
+from modules.modules.okx_withdraw import OKXWithdraw
 
 
 async def random_module(account_id, key, proxy):
@@ -17,6 +20,20 @@ async def random_low_cost_module(account_id, key, proxy):
     modules = [send_mail, wrap_eth, deposit_eraland]
     choice = random.choice(modules)
     await choice(account_id, key, proxy)
+
+
+async def okx_withdraw(account_id: int, key: str, proxy: str):
+    okx_withdraw = OKXWithdraw(account_id, key)
+    await okx_withdraw.withdraw()
+
+
+async def okx_top_up(account_id: int, key: str, proxy: str):
+    min_balance = OKXSETTINGS.MIN_AMOUNT
+    max_balance = OKXSETTINGS.MAX_AMOUNT
+    decimals = OKXSETTINGS.DECIMALS
+    
+    okx_top_up = OKXTopUp(account_id, key, proxy)
+    await okx_top_up.top_up_balance(min_balance, max_balance, decimals)
 
 
 async def send_mail(account_id, key, proxy):

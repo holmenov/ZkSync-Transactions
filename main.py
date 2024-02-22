@@ -16,6 +16,8 @@ def get_module():
         questionary.Choice('5) Swap on SyncSwap', swap_syncswap),
         questionary.Choice('6) Wrap ETH', wrap_eth),
         questionary.Choice('7) Mint NFT', mint_nft),
+        questionary.Choice('8) OKX Withdraw', okx_withdraw),
+        questionary.Choice('9) OKX Top Up', okx_top_up),
     ]
     
     module = questionary.select(
