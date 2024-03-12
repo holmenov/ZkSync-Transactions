@@ -2,12 +2,16 @@
 
 ---
 
-With this repository, you can do simple transactions on **ZkSync**. You can do actions such as:
+This software allows you to create automated transactions on the **zkSync Era**. Features:
 
+- Check wallets balance.
 - Send mail via Dmail.
-- Wrap and unwrap ETH.
-- Deposit and withdraw ETH on EraLend.
 - Swap on SyncSwap.
+- Swap on WooFi.
+- Deposit and withdraw on EraLend.
+- Mint free NFTs.
+- Wrap and unwrap ETH
+- Approve, Transfer, Increase Allowance to random address
 
 ## INSTALLATION
 
@@ -15,32 +19,6 @@ With this repository, you can do simple transactions on **ZkSync**. You can do a
 2. `git clone https://github.com/holmenov/ZkSync-Transactions.git`.
 3. `cd ZkSync-Transactions`.
 4. `pip install -r requirements.txt`.
-5. Paste your proxies into `proxy.txt` in `ip:port@login:password` format
+5. Paste your proxies into `proxy.txt` in `ip:port@login:password` format.
 6. Paste the wallet private key in `accounts.txt`.
-7. Set the settings in `settings.py`.
-
-## GENERAL SETTINGS
-
-- `MAX_GAS` - Maximum GAS in GWEI for transactions [Integer].
-- `GAS_MULTIPLAYER` - Multiplier for gas [Float].
-- `RANDOM_WALLET` - Random wallet mode [Boolean].
-- `REMOVE_WALLET` - Remove wallet after work [Boolean].
-- `USE_PROXY` - Proxy mode [Boolean].
-- `START_PERIOD_FROM`, `START_PERIOD_TO` - Period in seconds to run all wallets [Integer].
-- `REPEATS_PER_WALLET` - Module repetitions for each wallet [Integer].
-- `SLEEP_AFTER_WORK_FROM`, `SLEEP_AFTER_WORK_TO` - Seconds to sleep after completing a task [Integer].
-- `ZKSYNC_RPC` - RPC for ZkSync [String].
-- `SLIPPAGE` - Percentage that is lost on exchange [Integer].
-
-## MODULES SETTINGS
-
-You can set different settings for each module.
-
-- `min_amout` - Minimum amount in ETH.
-- `max_amout` - Maximum amount in ETH.
-- `decimal` - Number of decimal places to generate a random number in ETH.
-- `all_amount` - Use a random % of your wallet balance.
-- `min_percent` - Minimum percent of balance.
-- `max_percent` - Maximum percent of balance.
-
-There are also other settings that are individual to each module.
+7. Set settings in `settings.py`.

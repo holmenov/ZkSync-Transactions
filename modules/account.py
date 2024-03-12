@@ -1,44 +1,97 @@
-import asyncio
 import random
-
+from typing import Union
 import eth_account
 from loguru import logger
 from web3 import AsyncWeb3
 from web3.middleware import async_geth_poa_middleware
 from web3.types import TxParams
 from web3.exceptions import TransactionNotFound
-from settings import MainSettings as SETTINGS
 
-from utils.config import ERC20_ABI, MAX_APPROVE, ZKSYNC_TOKENS
+from settings import MainSettings as SETTINGS
+from utils.config import ERC20_ABI, MAX_APPROVE, ZKSYNC_TOKENS, RPC
 from utils.utils import async_sleep
 
 
 class Account:
-    def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
+    def __init__(self, account_id: int, private_key: str, proxy: str | None, chain: str = 'zksync') -> None:
         self.account_id = account_id
         self.private_key = private_key
-        self.explorer = 'https://explorer.zksync.io/tx/'
-
-        request_kwargs = {}
         
-        if proxy:
-            request_kwargs = {'proxy': f'http://{proxy}'}
+        self.explorer = RPC[chain]['explorer']
+        self.rpc = RPC[chain]['rpc']
+        self.eip_1559_support = False
+
+        self.proxy = f"http://{proxy}" if proxy else ""
+        self.request_kwargs = {'proxy': f'http://{proxy}'} if proxy else {}
             
         self.w3 = AsyncWeb3(
-            AsyncWeb3.AsyncHTTPProvider(SETTINGS.ZKSYNC_RPC),
+            AsyncWeb3.AsyncHTTPProvider(self.rpc),
             middlewares=[async_geth_poa_middleware],
-            request_kwargs=request_kwargs
+            request_kwargs=self.request_kwargs
         )
 
         self.address = eth_account.Account.from_key(private_key).address
+
+        self.LOG_LEVELS = {
+            'info'      : logger.info,
+            'success'   : logger.success,
+            'error'     : logger.error,
+            'warning'   : logger.warning,
+            'debug'     : logger.debug
+        }
     
-    @staticmethod
-    def wei_to_eth(amount_wei: int, decimals: int = 18) -> float:
-        return amount_wei / (10 ** decimals)
+    def log_send(self, msg: str, status: str = 'info'):
+        self.LOG_LEVELS[status](f'Account №{self.account_id} | {self.address} | {msg}')
     
-    @staticmethod
-    def eth_to_wei(amount_eth: float, decimals: int = 18) -> int:
-        return amount_eth * (10 ** decimals)
+    async def get_token_info(self, contract_address: str) -> Union[int, str, int]:
+        contract_address = self.w3.to_checksum_address(contract_address)
+        contract = self.get_contract(contract_address)
+        
+        symbol = await contract.functions.symbol().call()
+        decimal = await contract.functions.decimals().call()
+        balance_wei = await contract.functions.balanceOf(self.address).call()
+        
+        return balance_wei, symbol, decimal
+    
+    async def get_balance(self, contract_address: str = None) -> Union[float, int]:
+        if contract_address:
+            balance_wei, _, decimal = await self.get_token_info(contract_address)
+            balance = balance_wei / 10 ** decimal
+        else:
+            balance_wei = await self.w3.eth.get_balance(self.address)
+            balance = balance_wei / 10 ** 18
+
+        return balance, balance_wei
+    
+    async def get_random_amount(self, token: str, min_amount: float, max_amount: float, decimal: int):
+        amount = round(random.uniform(min_amount, max_amount), decimal)
+        
+        if token == 'ETH':
+            amount_wei = self.w3.to_wei(amount, 'ether')
+        
+        else:
+            _, _, decimal = await self.get_token_info(ZKSYNC_TOKENS[token])
+            amount_wei = int(amount * 10 ** decimal)
+        
+        return amount_wei, amount
+    
+    async def get_percent_amount(self, token: str, min_percent: int, max_percent: int) -> Union[float, int]:
+        balance, balance_wei = await self.get_balance(ZKSYNC_TOKENS[token])
+        
+        random_percent = random.randint(min_percent, max_percent) / 100
+        
+        amount_wei = int(balance_wei * random_percent)
+        amount = balance * random_percent
+        
+        return amount_wei, amount
+    
+    def get_contract(self, contract_address: str, abi=None):
+        contract_address = self.w3.to_checksum_address(contract_address)
+
+        abi = ERC20_ABI if abi is None else abi
+
+        contract = self.w3.eth.contract(address=contract_address, abi=abi)
+        return contract
     
     async def get_allowance(self, token_address: str, contract_address: str):
         token_address = self.w3.to_checksum_address(token_address)
@@ -49,115 +102,59 @@ class Account:
         
         return amount_approved
     
-    async def approve(self, amount: int, token_address: str, contract_address: str):
+    async def approve(self, amount_wei: int, token_address: str, contract_address: str):
         token_address = self.w3.to_checksum_address(token_address)
         contract_address = self.w3.to_checksum_address(contract_address)
-        
+
         contract = self.w3.eth.contract(address=token_address, abi=ERC20_ABI)
-        allowance_amount = await self.check_allowance(token_address, contract_address)
-        
-        if amount > allowance_amount:
-            logger.success(f'{self.account_id} | {self.address} | Make approve')
+
+        allowance_amount = await self.get_allowance(token_address, contract_address)
+
+        if amount_wei > allowance_amount:
+            ('Make approve.')
 
             tx_data = await self.get_tx_data()
+
             tx = await contract.functions.approve(contract_address, MAX_APPROVE).build_transaction(tx_data)
+
             await self.execute_transaction(tx)
 
-            await async_sleep(5, 10, logs=False)
+            await async_sleep(5, 15, logs=False)
     
-    async def execute_transaction(self, tx: TxParams, wait_complete: bool = True):
-        signed_tx = await self.sign(tx)
-        tx_hash = await self.send_raw_transaction(signed_tx)
-        
-        if wait_complete:
-            await self.wait_until_tx_finished(tx_hash)
-        else:
-            return tx_hash
-    
-    async def get_balance(self, contract_address: str) -> dict:
-        contract_address = self.w3.to_checksum_address(contract_address)
-        contract = self.get_contract(contract_address)
-
-        symbol = await contract.functions.symbol().call()
-        decimal = await contract.functions.decimals().call()
-        balance_wei = await contract.functions.balanceOf(self.address).call()
-
-        balance = Account.wei_to_eth(balance_wei, decimal)
-
-        return {"balance_wei": balance_wei, "balance": balance, "symbol": symbol, "decimal": decimal}
-    
-    async def get_amount(
-        self,
-        token: str,
-        min_amt: float = 0,
-        max_amt: float = 0,
-        use_percents: bool = False,
-        min_pct: int = 0,
-        max_pct: int = 0,
-        decimal: int = 6
-    ):
-        if not use_percents and min_amt == max_amt == 0:
-            raise ValueError("Not declared values for 'min_amt' and 'max_amt'.")
-            
-        if use_percents and min_pct == max_pct == 0:
-            raise ValueError("Not declared values for 'min_pct' and 'max_pct'.")
-
-        rnd_pct = random.randint(min_pct, max_pct) / 100
-        rnd_amt = round(random.uniform(min_amt, max_amt), decimal)
-
-        if token == 'ETH':
-            balance_wei = await self.w3.eth.get_balance(self.address)
-            amt_wei = int(balance_wei * rnd_pct) if use_percents else self.w3.to_wei(rnd_amt, 'ether')
-            amt = self.w3.from_wei(int(balance_wei * rnd_pct), 'ether') if use_percents else rnd_amt
-        else:
-            balance = await self.get_balance(ZKSYNC_TOKENS[token])
-            amt_wei = int(balance['balance_wei'] * rnd_pct) if use_percents else Account.eth_to_wei(rnd_amt, balance['decimal'])
-            amt = balance['balance'] * rnd_pct if use_percents else rnd_amt
-            balance_wei = balance['balance_wei']
-        
-        return amt_wei, amt, balance_wei
-    
-    def get_contract(self, contract_address: str, abi = None):
-        contract_address = self.w3.to_checksum_address(contract_address)
-        abi = ERC20_ABI if abi is None else abi
-        contract = self.w3.eth.contract(address=contract_address, abi=abi)
-
-        return contract
-    
-    async def get_tx_data(self, value: int = 0, eip_1559: bool = True):
+    async def get_tx_data(self, value: int = 0):
         tx = {
             'chainId': await self.w3.eth.chain_id,
             'from': self.address,
             'value': value,
             'nonce': await self.w3.eth.get_transaction_count(self.address)
         }
-        
-        if eip_1559:
-            base_fee = (await self.w3.eth.get_block('latest'))['baseFeePerGas']
-            tx.update({
-                'maxFeePerGas': base_fee,
-                'maxPriorityFeePerGas': base_fee,
-                'type': '0x2'
-            })
 
+        if self.eip_1559_support:
+            base_fee = (await self.w3.eth.get_block('latest'))['baseFeePerGas']
+            max_fee_per_gas = base_fee
+            max_priority_fee_per_gas = base_fee
+
+            tx['maxFeePerGas'] = max_fee_per_gas
+            tx['maxPriorityFeePerGas'] = max_priority_fee_per_gas
+            tx['type'] = '0x2'
         else:
             tx['gasPrice'] = await self.w3.eth.gas_price
-        
+
         return tx
-    
+
     async def sign(self, transaction):
         gas = await self.w3.eth.estimate_gas(transaction)
         gas = int(gas * SETTINGS.GAS_MULTIPLAYER)
-        
+
         transaction.update({'gas': gas})
-        
+
         signed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
         return signed_tx
-    
+
     async def send_raw_transaction(self, signed_txn):
         txn_hash = await self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         return txn_hash
-    
+
     async def wait_until_tx_finished(self, hash: str):
         attempts_count = 0
 
@@ -167,15 +164,24 @@ class Account:
                 status = receipts.get('status')
 
                 if status == 1:
-                    return logger.success(f'{self.account_id} | {self.address} | {self.explorer}{hash.hex()} successfully!')
+                    return self.log_send(f'{self.explorer}{hash.hex()} successfully!', status='success')
                 elif status is None:
                     await async_sleep(10, 10, logs=False)
                 else:
-                    return logger.error(f'{self.account_id} | {self.address} | {self.explorer}{hash.hex()} transaction failed!')
+                    return self.log_send(f'{self.explorer}{hash.hex()} transaction failed!', status='error')
             
             except TransactionNotFound:
                 if attempts_count >= 30:
-                    return logger.warning(f'{self.account_id} | {self.address} | {self.explorer}{hash.hex()} transaction not found!')
+                    return self.log_send(f'{self.explorer}{hash.hex()} transaction not found!', status='warning')
                 
                 attempts_count += 1
-                await asyncio.sleep(10, 10)
+                await async_sleep(10, 10, logs=False)
+    
+    async def execute_transaction(self, tx: TxParams, wait_complete: bool = True):
+        signed_tx = await self.sign(tx)
+        tx_hash = await self.send_raw_transaction(signed_tx)
+
+        if wait_complete:
+            await self.wait_until_tx_finished(tx_hash)
+        else:
+            return tx_hash

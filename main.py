@@ -1,23 +1,48 @@
 import asyncio
 from loguru import logger
 import questionary
+import sys
 
-from utils.launch import start_tasks
+from utils.launch import run_check_balance, start_tasks
 from utils.utils import get_wallets
 from utils.modules import *
 
 
-def get_module():
+def start():
+    start_menu = [
+        questionary.Choice('🚀 Custom Module Routes', 'custom-routes'),
+        questionary.Choice('✨ One Selected Module', 'one-module'),
+        questionary.Choice('💼 zkSync Balance Checker', 'balance-checker'),
+        questionary.Choice('❌ Exit', 'exit'),
+    ]
+    
+    start_mode = questionary.select(
+        'Select a mode to start the software:',
+        choices=start_menu,
+        qmark='📌 ',
+        pointer='➡️ '
+    ).ask()
+    
+    return start_mode
+
+
+def one_selected_module():
     modules = [
-        questionary.Choice('1) Random module', random_module),
-        questionary.Choice('2) Random low-cost module', random_low_cost_module),
-        questionary.Choice('3) Sending mail via DMail', send_mail),
-        questionary.Choice('4) Deposit and withdraw on EraLend', deposit_eraland),
-        questionary.Choice('5) Swap on SyncSwap', swap_syncswap),
-        questionary.Choice('6) Wrap ETH', wrap_eth),
-        questionary.Choice('7) Mint NFT', mint_nft),
-        questionary.Choice('8) OKX Withdraw', okx_withdraw),
-        questionary.Choice('9) OKX Top Up', okx_top_up),
+        questionary.Choice('● Swap on SyncSwap', swap_syncswap),
+        questionary.Choice('● Swap on WooFi', swap_woofi),
+        questionary.Choice('● Deposit on EraLend', deposit_eraland),
+        questionary.Choice('● Wrap ETH', wrap_eth),
+        questionary.Choice('● Sending mail via DMail', send_mail),
+        questionary.Choice('● Mint NFT', mint_nft),
+        questionary.Choice('● Vote on RubyScore', rubyscore_vote),
+        questionary.Choice('● Daily check in on OwlTo', owlto_checkin),
+        questionary.Choice('● Increase allowance token', increase_allowance),
+        questionary.Choice('● Approve token', approve),
+        questionary.Choice('● Transfer token', transfer),
+        questionary.Choice('● OKX Withdraw', okx_withdraw),
+        questionary.Choice('● OKX Top Up', okx_top_up),
+        questionary.Choice('● Random cheap module', random_low_cost_module),
+        questionary.Choice('● Random module', random_module),
     ]
     
     module = questionary.select(
@@ -29,11 +54,24 @@ def get_module():
 
     return module
 
-def main():
-    module = get_module()
-    data = get_wallets()
 
-    asyncio.run(start_tasks(module, data))
+def main():
+    start_mode = start()
+    
+    if start_mode == 'exit': sys.exit()
+    
+    data = get_wallets()
+    
+    if start_mode == 'custom-routes':
+        asyncio.run(start_tasks(data))
+
+    elif start_mode == 'one-module':
+        module = one_selected_module()
+        asyncio.run(start_tasks(data, module))
+
+    elif start_mode == 'balance-checker':
+        asyncio.run(run_check_balance(data))
+    
 
 if __name__ == '__main__':
     logger.add('logs.log')

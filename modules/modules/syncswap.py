@@ -48,31 +48,26 @@ class SyncSwap(Account):
         max_percent: int,
         swap_reverse: bool
     ):
-        logger.info(f'{self.account_id} | {self.address} | {from_token} -> {to_token} | Swap on SyncSwap')
+        self.log_send(f'{from_token} -> {to_token} | Swap on SyncSwap.')
 
-        amount_wei, amount, balance = await self.get_amount(
-            from_token,
-            min_amount,
-            max_amount,
-            decimal,
-            all_amount,
-            min_percent,
-            max_percent
-        )
+        if all_amount:
+            amount_wei, _ = await self.get_percent_amount(from_token, min_percent, max_percent)
+        else:
+            amount_wei, _ = await self.get_random_amount(from_token, min_amount, max_amount, decimal)
 
         token_address = self.w3.to_checksum_address(ZKSYNC_TOKENS[from_token])
 
         pool_address = await self.get_pool(from_token, to_token)
         
         if pool_address == ZERO_ADDRESS:
-            return logger.error(f'{self.account_id} | {self.address} | Swap path {from_token} to {to_token} not found!')
+            return self.log_send(f'Swap path {from_token} to {to_token} not found!', status='error')
         
         tx_data = await self.get_tx_data()
         
         if from_token == 'ETH':
             tx_data.update({'value': amount_wei})
         else:
-            await self.approve(amount, token_address, self.w3.to_checksum_address(SYNCSWAP_CONTRACTS['router']))
+            await self.approve(amount_wei, token_address, self.w3.to_checksum_address(SYNCSWAP_CONTRACTS['router']))
             
         min_amount_out = await self.get_min_amount_out(pool_address, token_address, amount_wei)
         

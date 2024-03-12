@@ -23,17 +23,12 @@ class WrapETH(Account):
         max_percent: int,
         unwrap_eth: bool
     ):
-        logger.info(f"{self.account_id} | {self.address} | Wrap ETH.")
+        self.log_send('Wrap $ETH.')
 
-        amount_wei, amount, balance = await self.get_amount(
-            "ETH",
-            min_amount,
-            max_amount,
-            decimal,
-            all_amount,
-            min_percent,
-            max_percent
-        )
+        if all_amount:
+            amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
+        else:
+            amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
         
         tx_data = await self.get_tx_data(value=amount_wei)
         
@@ -47,9 +42,9 @@ class WrapETH(Account):
 
     @check_gas
     async def unwrap_eth(self):
-        logger.info(f"{self.account_id} | {self.address} | Unwrap ETH")
+        self.log_send('Unwrap all $WETH.')
 
-        balance_wei = (await self.get_balance(ZKSYNC_TOKENS['WETH']))['balance_wei']
+        _, balance_wei = await self.get_balance(ZKSYNC_TOKENS['WETH'])
 
         tx_data = await self.get_tx_data()
 

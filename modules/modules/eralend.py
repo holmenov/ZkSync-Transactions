@@ -1,4 +1,4 @@
-from loguru import logger
+from settings import MainSettings as SETTINGS
 from modules.account import Account
 from utils.config import ERALEND_ABI, ERALEND_CONTRACTS
 from utils.utils import async_sleep
@@ -9,10 +9,10 @@ class Eralend(Account):
     def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
         super().__init__(account_id=account_id, private_key=private_key, proxy=proxy)
         
-        self.contract = self.get_contract(ERALEND_CONTRACTS['landing'], ERALEND_ABI)
+        self.eraland_contract = self.get_contract(ERALEND_CONTRACTS['landing'], ERALEND_ABI)
         
     async def get_deposit_amount(self):
-        amount = await self.contract.functions.balanceOfUnderlying(self.address).call()
+        amount = await self.eraland_contract.functions.balanceOfUnderlying(self.address).call()
         return amount
     
     @check_gas
@@ -26,17 +26,12 @@ class Eralend(Account):
         max_percent: int,
         make_withdraw: bool
     ):
-        logger.info(f'{self.account_id} | {self.address} | Make deposit on Eralend.')
+        self.log_send('Make deposit on Eralend.')
         
-        amount_wei, amount, balance = await self.get_amount(
-            'ETH',
-            min_amount,
-            max_amount,
-            decimal,
-            all_amount,
-            min_percent,
-            max_percent
-        )
+        if all_amount:
+            amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
+        else:
+            amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
         
         tx = await self.get_tx_data(value=amount_wei)
         
@@ -45,17 +40,17 @@ class Eralend(Account):
         await self.execute_transaction(tx)
         
         if make_withdraw:
-            await async_sleep(5, 20, logs=False)
+            await async_sleep(SETTINGS.LANDINGS_SLEEP[0], SETTINGS.LANDINGS_SLEEP[1], logs=False)
             await self.withdraw()
     
     @check_gas
     async def withdraw(self):
-        logger.info(f'{self.account_id} | {self.address} | Make withdraw from Eralend.')
+        self.log_send('Make withdraw from Eralend.')
         
         tx_data = await self.get_tx_data()
         
         amount = await self.get_deposit_amount()
 
-        tx = await self.contract.functions.redeemUnderlying(amount).build_transaction(tx_data)
+        tx = await self.eraland_contract.functions.redeemUnderlying(amount).build_transaction(tx_data)
         
         await self.execute_transaction(tx)

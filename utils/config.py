@@ -1,5 +1,8 @@
 import json
 
+
+with open('data/rpc.json', 'r') as file:
+    RPC = json.load(file)
     
 with open('data/erc20_abi.json', 'r') as file:
     ERC20_ABI = json.load(file)
@@ -19,23 +22,42 @@ with open("data/eralend/abi.json", "r") as file:
 with open("data/syncswap/router.json", "r") as file:
     SYNCSWAP_ROUTER_ABI = json.load(file)
 
-with open('data/syncswap/classic_pool.json') as file:
+with open('data/syncswap/classic_pool.json', "r") as file:
     SYNCSWAP_CLASSIC_POOL_ABI = json.load(file)
 
-with open('data/syncswap/classic_pool_data.json') as file:
+with open('data/syncswap/classic_pool_data.json', "r") as file:
     SYNCSWAP_CLASSIC_POOL_DATA_ABI = json.load(file)
 
-with open('data/weth/abi.json') as file:
+with open('data/weth/abi.json', "r") as file:
     WETH_ABI = json.load(file)
 
-with open('data/mint_nft/abi.json') as file:
+with open('data/mint_nft/abi.json', "r") as file:
     MINT_NFT_ABI = json.load(file)
+
+with open('data/rubyscore/abi.json', "r") as file:
+    RUBYSCORE_ABI = json.load(file)
+
+with open('data/owlto/abi.json', "r") as file:
+    OWLTO_ABI = json.load(file)
+
+with open('data/woofi/abi.json', "r") as file:
+    WOOFI_ABI = json.load(file)
 
 MAX_APPROVE = 2**256 - 1
 
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 DMAIL_CONTRACT = '0x981F198286E40F9979274E0876636E9144B8FB8E'
+
+OWLTO_CONTRACT = '0xD48e3caf0D948203434646a3f3e80f8Ee18007dc'
+
+WOOFI_CONTRACTS = {
+    "router": "0xfd505702b37Ae9b626952Eb2DD736d9045876417"
+}
+
+RUBYSCORE_CONTRACTS = {
+    "vote": "0xCb84d512F0C9943D3BC6B4Be8801aC8Aa6621a54",
+}
 
 ERALEND_CONTRACTS = {
     "landing": "0x22d8b71599e14f20a49a397b88c1c878c86f5579",

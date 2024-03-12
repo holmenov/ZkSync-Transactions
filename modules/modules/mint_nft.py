@@ -1,5 +1,3 @@
-from loguru import logger
-
 from modules.account import Account
 from utils.config import MINT_NFT_ABI
 from utils.wrappers import check_gas
@@ -11,7 +9,7 @@ class MintNFT(Account):
 
     @check_gas
     async def mint_nft(self, nft_contract: str):
-        logger.info(f'{self.account_id} | {self.address} | Mint NFT.')
+        self.log_send('Mint NFT.')
 
         contract = self.get_contract(nft_contract, MINT_NFT_ABI)
 

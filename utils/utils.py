@@ -1,9 +1,11 @@
 import asyncio
 import random
+import secrets
 import sys
 import eth_account
-
 from loguru import logger
+from web3 import Web3
+
 from utils.config import ACCOUNTS, PROXIES
 from settings import MainSettings as SETTINGS
 
@@ -18,7 +20,14 @@ async def async_sleep(sleep_from: int, sleep_to: int, logs: bool = True, account
             logger.info(f'Account №{account_id} | {get_wallet_address(key)} | Sleep {delay} seconds, {msg}.')
 
     for _ in range(delay): await asyncio.sleep(1)
+
+def get_random_address():
+    random_bytes = secrets.token_bytes(20)
+    evm_address = '0x' + random_bytes.hex()
+    random_address = Web3.to_checksum_address(evm_address)
     
+    return random_address
+
 def get_wallet_address(key: str) -> str:
     account = eth_account.Account.from_key(key)
     return account.address
