@@ -2,8 +2,8 @@ from modules.account import Account
 
 
 class BalanceChecker(Account):
-    def __init__(self, account_id: int, private_key: str, proxy: str | None, chain: str = 'scroll') -> None:
-        super().__init__(account_id, private_key, proxy, chain)
+    def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
+        super().__init__(account_id, private_key, proxy)
     
     async def check_balance(self):
         try:
