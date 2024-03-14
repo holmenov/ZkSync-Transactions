@@ -40,20 +40,19 @@ class WooFi(Account):
         else:
             amount_wei, _ = await self.get_random_amount(from_token, min_amount, max_amount, decimal)
 
-        token_address = self.w3.to_checksum_address(ZKSYNC_TOKENS[from_token])
-
-        tx_data = await self.get_tx_data()
+        from_token_addr = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' if from_token == 'ETH' else ZKSYNC_TOKENS[from_token]
+        to_token_addr = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' if to_token == 'ETH' else ZKSYNC_TOKENS[to_token]
+    
+        if from_token != 'ETH':
+            await self.approve(amount_wei, from_token_addr, self.w3.to_checksum_address(WOOFI_CONTRACTS['router']))
         
-        if from_token == 'ETH':
-            tx_data.update({'value': amount_wei})
-        else:
-            await self.approve(amount_wei, token_address, self.w3.to_checksum_address(WOOFI_CONTRACTS['router']))
+        tx_data = await self.get_tx_data(value=amount_wei if from_token == 'ETH' else 0)
             
         min_amount_out = await self.get_min_amount_out(ZKSYNC_TOKENS[from_token], ZKSYNC_TOKENS[to_token], amount_wei)
         
         tx = await self.woofi_contract.functions.swap(
-            self.w3.to_checksum_address(ZKSYNC_TOKENS[from_token]),
-            self.w3.to_checksum_address(ZKSYNC_TOKENS[to_token]),
+            self.w3.to_checksum_address(from_token_addr),
+            self.w3.to_checksum_address(to_token_addr),
             amount_wei,
             min_amount_out,
             self.address,

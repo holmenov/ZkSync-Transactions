@@ -3,11 +3,11 @@ from datetime import datetime
 import hmac
 import random
 import aiohttp
-import eth_account
-from loguru import logger
 
 from modules.account import Account
 from settings import OKXSettings
+from utils.config import ZKSYNC_TOKENS
+from utils.utils import async_sleep
 
 
 class OKXWithdraw(Account):
@@ -22,6 +22,19 @@ class OKXWithdraw(Account):
         self.secret_key = OKXSettings.SECRET_KEY
         self.passphrase = OKXSettings.PASSPHRASE
         self.dest = 4
+    
+    async def wait_until_change_balance(self):
+        _, init_balance_wei = _, current_balance_wei = await self.get_balance(
+            ZKSYNC_TOKENS[self.symbol] if self.symbol != 'ETH' else None
+        )
+        
+        while init_balance_wei == current_balance_wei:
+            await async_sleep(10, 10, logs=False)
+            _, current_balance_wei = await self.get_balance(
+                ZKSYNC_TOKENS[self.symbol] if self.symbol != 'ETH' else None
+            )
+        
+        self.log_send(f'${self.symbol} has been successfully credited.')
     
     async def make_http_request(self, url, method, headers=None, params=None, data=None, timeout=10):
         async with aiohttp.ClientSession() as session:
@@ -65,7 +78,7 @@ class OKXWithdraw(Account):
 
         return headers
 
-    async def withdraw(self, amount_withdraw: float = 0):
+    async def withdraw(self, amount_withdraw: float = 0, wait_until_credited: bool = False):
         self.amount = amount_withdraw if amount_withdraw != 0 else self.amount
         
         try:
@@ -83,6 +96,9 @@ class OKXWithdraw(Account):
 
             if result['code'] == '0':
                 self.log_send(f'Successfully withdraw {self.amount} {self.symbol} from OKX.', status='success')
+                
+                if wait_until_credited: await self.wait_until_change_balance()
+                
                 return True
             else:
                 e = result['msg']

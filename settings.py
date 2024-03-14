@@ -58,7 +58,7 @@ class MainSettings:
 
     USE_PROXY = True
 
-    START_PERIOD = [1, 10]
+    START_PERIOD = [1, 600]
     
     REPEATS_PER_WALLET = 1
 
@@ -69,7 +69,7 @@ class MainSettings:
     LANDINGS_SLEEP = [90, 300]
 
     CUSTOM_ROUTES_MODULES = [
-        ['send_mail', 'increase_allowance', 'approve', 'transfer', 'rubyscore_vote', 'owlto_checkin']
+        ['send_mail', 'increase_allowance', 'approve', 'transfer', 'rubyscore_vote', 'owlto_checkin', 'swap_syncswap', 'swap_woofi', 'deposit_eraland'],
     ]
 
     # CUSTOM_ROUTES_MODULES = [
@@ -83,17 +83,19 @@ class MainSettings:
 """
 ----------------------------------------OKX WITHDRAW------------------------------------------
 
-    SYMBOL = 'ETH'              |   Data for withdraw from OKX.
-    CHAIN = 'zkSync Era'        |   You can find this data on OKX.
-    FEE = 0.00015               |   https://www.okx.com/balance/withdrawal
+    SYMBOL = 'ETH'                      |   Data for withdraw from OKX.
+    CHAIN = 'zkSync Era'                |   You can find this data on OKX.
+    FEE = 0.00015                       |   https://www.okx.com/balance/withdrawal
 
-    AMOUNT = [0.006, 0.008]     |   Amount from and amount to withdrawal.
+    AMOUNT = [0.006, 0.008]             |   Amount from and amount to withdrawal.
     
-    BALANCE_TOP_UP = 0.01       |   Minimum balance for top up balance (Only for $ETH).
+    BALANCE_TOP_UP = 0.01               |   Minimum balance for top up balance (Only for $ETH).
     
-    SECRET_KEY = 'YOUR_DATA'    |   Get your API data here:
-    API_KEY = 'YOUR_DATA'       |   https://www.okx.com/account/my-api
-    PASSPHRASE = 'YOUR_DATA'    |   Paste your secret, api keys and passphrase.
+    WAIT_UNTIL_BALANCE_CREDITED = True  |   Wait until for tokens credited to move next modules.
+    
+    SECRET_KEY = 'YOUR_DATA'            |   Get your API data here:
+    API_KEY = 'YOUR_DATA'               |   https://www.okx.com/account/my-api
+    PASSPHRASE = 'YOUR_DATA'            |   Paste your secret, api keys and passphrase.
 
 ----------------------------------------------------------------------------------------------
 """
@@ -106,6 +108,8 @@ class OKXSettings:
     AMOUNT_WITHDRAW = [0.006, 0.008]
 
     BALANCE_TOP_UP = 0.01
+
+    WAIT_UNTIL_BALANCE_CREDITED = True
 
     SECRET_KEY = 'YOUR_DATA'
     API_KEY = 'YOUR_DATA'
@@ -185,13 +189,13 @@ class ModulesSettings:
     class Tokens:
 
         class IncreaseAllowance: # ETH not avaliable
-            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC', 'UNI']
+            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]
             DECIMAL = 7
         
         class Approve: # ETH not avaliable
-            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC', 'UNI']
+            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]
             DECIMAL = 7
