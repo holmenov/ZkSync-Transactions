@@ -33,9 +33,10 @@ def get_wallet_address(key: str) -> str:
     return account.address
 
 def get_wallets():
-    if len(ACCOUNTS) != len(PROXIES):
-        logger.error('The number of wallets and proxies does not match.')
-        sys.exit()
+    if SETTINGS.USE_PROXY:
+        if len(ACCOUNTS) != len(PROXIES):
+            logger.error('The number of wallets and proxies does not match.')
+            sys.exit()
     
     elif len(ACCOUNTS) < 1:
         logger.error('It seems you forgot to enter the wallets.')

@@ -28,13 +28,15 @@ class OKXWithdraw(Account):
             ZKSYNC_TOKENS[self.symbol] if self.symbol != 'ETH' else None
         )
         
+        self.log_send(f'Awaiting to credit funds to wallet.')
+        
         while init_balance_wei == current_balance_wei:
             await async_sleep(10, 10, logs=False)
             _, current_balance_wei = await self.get_balance(
                 ZKSYNC_TOKENS[self.symbol] if self.symbol != 'ETH' else None
             )
         
-        self.log_send(f'${self.symbol} has been successfully credited.')
+        self.log_send(f'Tokens ${self.symbol} has been successfully credited.', status='success')
     
     async def make_http_request(self, url, method, headers=None, params=None, data=None, timeout=10):
         async with aiohttp.ClientSession() as session:

@@ -13,31 +13,21 @@ from modules.modules.owlto import OwlTo
 from modules.modules.okx_topup import OKXTopUp
 from modules.modules.tokens import Tokens
 from modules.modules.balance_checker import BalanceChecker
-from modules.modules.woofi import WooFi
-
-
-async def random_module(account_id, key, proxy):
-    modules = [send_mail, deposit_eraland, swap_syncswap, wrap_eth, mint_nft]
-    choice = random.choice(modules)
-    await choice(account_id, key, proxy)
-
-async def random_low_cost_module(account_id, key, proxy):
-    modules = [send_mail, wrap_eth, deposit_eraland, owlto_checkin, rubyscore_vote]
-    choice = random.choice(modules)
-    await choice(account_id, key, proxy)
+from modules.modules.inch import Inch
+from modules.modules.maverick import Maverick
+from modules.modules.mute import Mute
+from modules.modules.odos import Odos
 
 
 async def okx_withdraw(account_id: int, key: str, proxy: str):
     okx_withdraw = OKXWithdraw(account_id, key, proxy)
     await okx_withdraw.withdraw()
 
-
 async def okx_top_up(account_id: int, key: str, proxy: str):
     amount = OKXSETTINGS.BALANCE_TOP_UP
     
     okx_top_up = OKXTopUp(account_id, key, proxy)
     await okx_top_up.top_up_balance(amount)
-
 
 async def swap_syncswap(account_id, key, proxy):
     from_token = ms.SyncSwap.FROM_TOKEN
@@ -59,26 +49,88 @@ async def swap_syncswap(account_id, key, proxy):
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
 
-async def swap_woofi(account_id, key, proxy):
-    from_token = ms.WooFi.FROM_TOKEN
-    to_token = ms.WooFi.TO_TOKEN
+async def swap_inch(account_id, key, proxy):
+    from_token = ms.Inch.FROM_TOKEN
+    to_token = ms.Inch.TO_TOKEN
     
-    min_amount = ms.WooFi.AMOUNT[0]
-    max_amount = ms.WooFi.AMOUNT[1]
-    decimal = ms.WooFi.DECIMAL
+    min_amount = ms.Inch.AMOUNT[0]
+    max_amount = ms.Inch.AMOUNT[1]
+    decimal = ms.Inch.DECIMAL
     
-    all_amount = ms.WooFi.USE_PERCENTS
+    all_amount = ms.Inch.USE_PERCENTS
     
-    swap_reverse = ms.WooFi.SWAP_REVERSE
+    swap_reverse = ms.Inch.SWAP_REVERSE
     
-    min_percent = ms.WooFi.PERCENTS[0]
-    max_percent = ms.WooFi.PERCENTS[1]
+    min_percent = ms.Inch.PERCENTS[0]
+    max_percent = ms.Inch.PERCENTS[1]
     
-    woofi = WooFi(account_id, key, proxy)
-    await woofi.swap(
+    api_key = ms.Inch.API_KEY
+    
+    inch = Inch(account_id, key, proxy, api_key)
+    await inch.swap(
+        from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
+    )
+
+async def swap_maverick(account_id, key, proxy):
+    from_token = ms.Maverick.FROM_TOKEN
+    to_token = ms.Maverick.TO_TOKEN
+    
+    min_amount = ms.Maverick.AMOUNT[0]
+    max_amount = ms.Maverick.AMOUNT[1]
+    decimal = ms.Maverick.DECIMAL
+    
+    all_amount = ms.Maverick.USE_PERCENTS
+    
+    swap_reverse = ms.Maverick.SWAP_REVERSE
+    
+    min_percent = ms.Maverick.PERCENTS[0]
+    max_percent = ms.Maverick.PERCENTS[1]
+    
+    maverick = Maverick(account_id, key, proxy)
+    await maverick.swap(
+        from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
+    )
+
+async def swap_mute(account_id, key, proxy):
+    from_token = ms.Mute.FROM_TOKEN
+    to_token = ms.Mute.TO_TOKEN
+    
+    min_amount = ms.Mute.AMOUNT[0]
+    max_amount = ms.Mute.AMOUNT[1]
+    decimal = ms.Mute.DECIMAL
+    
+    all_amount = ms.Mute.USE_PERCENTS
+    
+    swap_reverse = ms.Mute.SWAP_REVERSE
+    
+    min_percent = ms.Mute.PERCENTS[0]
+    max_percent = ms.Mute.PERCENTS[1]
+    
+    mute = Mute(account_id, key, proxy)
+    await mute.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
     
+async def swap_odos(account_id, key, proxy):
+    from_token = ms.Odos.FROM_TOKEN
+    to_token = ms.Odos.TO_TOKEN
+    
+    min_amount = ms.Odos.AMOUNT[0]
+    max_amount = ms.Odos.AMOUNT[1]
+    decimal = ms.Odos.DECIMAL
+    
+    all_amount = ms.Odos.USE_PERCENTS
+    
+    swap_reverse = ms.Odos.SWAP_REVERSE
+    
+    min_percent = ms.Odos.PERCENTS[0]
+    max_percent = ms.Odos.PERCENTS[1]
+    
+    odos = Odos(account_id, key, proxy)
+    await odos.swap(
+        from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
+    )
+
 async def deposit_eraland(account_id, key, proxy):
     min_amount = ms.EraLend.AMOUNT[0]
     max_amount = ms.EraLend.AMOUNT[1]

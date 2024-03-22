@@ -1,5 +1,7 @@
 import random
 from typing import Union
+from aiohttp import ClientSession
+import aiohttp
 import eth_account
 from loguru import logger
 from web3 import AsyncWeb3
@@ -17,9 +19,11 @@ class Account:
         self.account_id = account_id
         self.private_key = private_key
         
+        self.chain_name = chain
+        self.chain_id = RPC[chain]['chain_id']
         self.explorer = RPC[chain]['explorer']
         self.rpc = RPC[chain]['rpc']
-        self.eip_1559_support = False
+        self.eip_1559_support = True
 
         self.proxy = f"http://{proxy}" if proxy else ""
         self.request_kwargs = {'proxy': f'http://{proxy}'} if proxy else {}
@@ -39,6 +43,27 @@ class Account:
             'warning'   : logger.warning,
             'debug'     : logger.debug
         }
+    
+    async def make_request(
+        self, method: str = 'GET', url: str = None, headers: dict = None,
+        params: dict = None, data: str = None, json: dict = None
+    ):  
+        proxy_parts = self.proxy.split("@")
+        proxy_address = proxy_parts[0]
+        proxy_auth = aiohttp.BasicAuth(proxy_parts[1].split(":")[0], proxy_parts[1].split(":")[1])
+        
+        async with ClientSession() as session:
+            async with session.request(
+                method=method, url=url, headers=headers, data=data, params=params, json=json,
+                proxy=proxy_address, proxy_auth=proxy_auth
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data
+                else:
+                    self.log_send(f'Bad request to {self.__class__.__name__} API. Response: {await response.text()}.', status='warning')
+                    await async_sleep(5, 5, logs=False)
+                    return await self.make_request(method=method, url=url, headers=headers, data=data, params=params, json=json)
     
     def log_send(self, msg: str, status: str = 'info'):
         self.LOG_LEVELS[status](f'Account №{self.account_id} | {self.address} | {msg}')
@@ -102,7 +127,9 @@ class Account:
         
         return amount_approved
     
-    async def approve(self, amount_wei: int, token_address: str, contract_address: str):
+    async def approve(
+        self, amount_wei: int, token_address: str, contract_address: str, unlimited_approve: bool = False
+    ):
         token_address = self.w3.to_checksum_address(token_address)
         contract_address = self.w3.to_checksum_address(contract_address)
 
@@ -111,15 +138,28 @@ class Account:
         allowance_amount = await self.get_allowance(token_address, contract_address)
 
         if amount_wei > allowance_amount:
-            ('Make approve.')
+            self.log_send('Make approve.')
 
             tx_data = await self.get_tx_data()
 
-            tx = await contract.functions.approve(contract_address, MAX_APPROVE).build_transaction(tx_data)
+            if unlimited_approve:
+                tx = await contract.functions.approve(contract_address, MAX_APPROVE).build_transaction(tx_data)
+            else:
+                tx = await contract.functions.approve(contract_address, amount_wei).build_transaction(tx_data)
 
             await self.execute_transaction(tx)
 
             await async_sleep(5, 15, logs=False)
+    
+    async def get_priority_fee(self):
+        fee_history = await self.w3.eth.fee_history(25, 'latest', [20.0])
+        non_empty_block_priority_fees = [fee[0] for fee in fee_history["reward"] if fee[0] != 0]
+
+        divisor_priority = max(len(non_empty_block_priority_fees), 1)
+
+        priority_fee = int(round(sum(non_empty_block_priority_fees) / divisor_priority))
+
+        return priority_fee
     
     async def get_tx_data(self, value: int = 0):
         tx = {
@@ -130,15 +170,18 @@ class Account:
         }
 
         if self.eip_1559_support:
-            base_fee = (await self.w3.eth.get_block('latest'))['baseFeePerGas']
-            max_fee_per_gas = base_fee
-            max_priority_fee_per_gas = base_fee
+            base_fee = await self.w3.eth.gas_price
+            max_priority_fee_per_gas = int(await self.get_priority_fee() * SETTINGS.GAS_MULTIPLAYER)
+            max_fee_per_gas = int(base_fee + max_priority_fee_per_gas * SETTINGS.GAS_MULTIPLAYER)
 
-            tx['maxFeePerGas'] = max_fee_per_gas
+            if max_priority_fee_per_gas > max_fee_per_gas:
+                max_priority_fee_per_gas = int(max_fee_per_gas * 0.95)
+
             tx['maxPriorityFeePerGas'] = max_priority_fee_per_gas
+            tx['maxFeePerGas'] = max_fee_per_gas
             tx['type'] = '0x2'
         else:
-            tx['gasPrice'] = await self.w3.eth.gas_price
+            tx['gasPrice'] = int(await self.w3.eth.gas_price * SETTINGS.GAS_MULTIPLAYER)
 
         return tx
 
@@ -164,24 +207,24 @@ class Account:
                 status = receipts.get('status')
 
                 if status == 1:
-                    return self.log_send(f'{self.explorer}{hash.hex()} successfully!', status='success')
+                    self.log_send(f'{self.explorer}{hash.hex()} successfully!', status='success')
+                    return True
                 elif status is None:
                     await async_sleep(10, 10, logs=False)
                 else:
-                    return self.log_send(f'{self.explorer}{hash.hex()} transaction failed!', status='error')
+                    self.log_send(f'{self.explorer}{hash.hex()} transaction failed!', status='error')
+                    return False
             
             except TransactionNotFound:
                 if attempts_count >= 30:
-                    return self.log_send(f'{self.explorer}{hash.hex()} transaction not found!', status='warning')
+                    self.log_send(f'{self.explorer}{hash.hex()} transaction not found!', status='warning')
+                    return False
                 
                 attempts_count += 1
                 await async_sleep(10, 10, logs=False)
     
-    async def execute_transaction(self, tx: TxParams, wait_complete: bool = True):
+    async def execute_transaction(self, tx: TxParams):
         signed_tx = await self.sign(tx)
         tx_hash = await self.send_raw_transaction(signed_tx)
 
-        if wait_complete:
-            await self.wait_until_tx_finished(tx_hash)
-        else:
-            return tx_hash
+        return await self.wait_until_tx_finished(tx_hash)

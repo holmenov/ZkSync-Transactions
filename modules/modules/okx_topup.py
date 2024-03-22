@@ -21,15 +21,15 @@ class OKXTopUp(Account):
         else:
             return False
     
-    async def okx_withdraw(self, account_id: int, key: str, amount_withdraw: float):
+    async def okx_withdraw(self, account_id: int, key: str, amount_withdraw: float, wait_balance: bool):
         okx_withdraw = OKXWithdraw(account_id, key, self.str_proxy)
-        await okx_withdraw.withdraw(amount_withdraw)
+        await okx_withdraw.withdraw(amount_withdraw, wait_balance)
     
-    async def top_up_balance(self, amount: float):
+    async def top_up_balance(self, amount: float, wait_balance: bool):
         required_balance_eth = await self.calculate_amount(amount)
         
         if required_balance_eth:
-            await self.okx_withdraw(self.account_id, self.private_key, required_balance_eth)
+            await self.okx_withdraw(self.account_id, self.private_key, required_balance_eth, wait_balance)
         
         else:
             return self.log_send(f'The account already has the requested balance: {required_balance_eth}!')

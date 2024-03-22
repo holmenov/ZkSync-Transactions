@@ -23,31 +23,43 @@ class WrapETH(Account):
         max_percent: int,
         unwrap_eth: bool
     ):
-        self.log_send('Wrap $ETH.')
+        try:
+            self.log_send('Wrap $ETH.')
 
-        if all_amount:
-            amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
-        else:
-            amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
+            if all_amount:
+                amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
+            else:
+                amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
+            
+            tx_data = await self.get_tx_data(value=amount_wei)
+            
+            tx = await self.weth_contract.functions.deposit().build_transaction(tx_data)
+            
+            tx_status = await self.execute_transaction(tx)
+            
+            if unwrap_eth:
+                await async_sleep(5, 15, logs=False)
+                return await self.unwrap_eth()
+            else:
+                return tx_status
         
-        tx_data = await self.get_tx_data(value=amount_wei)
-        
-        tx = await self.weth_contract.functions.deposit().build_transaction(tx_data)
-        
-        await self.execute_transaction(tx)
-        
-        if unwrap_eth:
-            await async_sleep(5, 15, logs=False)
-            await self.unwrap_eth()
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False
 
     @check_gas
     async def unwrap_eth(self):
-        self.log_send('Unwrap all $WETH.')
+        try:
+            self.log_send('Unwrap all $WETH.')
 
-        _, balance_wei = await self.get_balance(ZKSYNC_TOKENS['WETH'])
+            _, balance_wei = await self.get_balance(ZKSYNC_TOKENS['WETH'])
 
-        tx_data = await self.get_tx_data()
+            tx_data = await self.get_tx_data()
 
-        tx = await self.weth_contract.functions.withdraw(balance_wei).build_transaction(tx_data)
+            tx = await self.weth_contract.functions.withdraw(balance_wei).build_transaction(tx_data)
 
-        await self.execute_transaction(tx)
+            return await self.execute_transaction(tx)
+        
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False

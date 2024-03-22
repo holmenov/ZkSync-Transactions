@@ -34,7 +34,10 @@
 ---------------------------------------FUNCTIONS NAME------------------------------------------
 
     swap_syncswap           |   Swap on SyncSwap.
-    swap_woofi              |   Swap on WooFi.
+    swap_inch               |   Swap on 1inch.
+    swap_maverick           |   Swap on Maverick.
+    swap_mute               |   Swap on Mute.
+    swap_odos               |   Swap on Odos.
     deposit_eraland         |   Supply (Redeem) EraLand.
     wrap_eth                |   Wrap (Unwrap) $ETH.
     send_mail               |   Send mail via DMail.
@@ -64,28 +67,24 @@ class MainSettings:
 
     SLEEP_AFTER_WORK = [10, 30]
 
-    SLIPPAGE = 5
+    SLIPPAGE = 1
     
     LANDINGS_SLEEP = [90, 300]
 
     CUSTOM_ROUTES_MODULES = [
-        ['send_mail', 'increase_allowance', 'approve', 'transfer', 'rubyscore_vote', 'owlto_checkin', 'swap_syncswap', 'swap_woofi', 'deposit_eraland'],
+        ['deposit_eraland'],
+        ['swap_syncswap'],
+        ['wrap_eth'],
+        ['send_mail', 'rubyscore_vote', 'owlto_checkin'],
+        ['increase_allowance', 'approve', 'transfer', None]
     ]
-
-    # CUSTOM_ROUTES_MODULES = [
-    #     ['deposit_eraland'],
-    #     ['swap_syncswap'],
-    #     ['wrap_eth'],
-    #     ['send_mail', 'rubyscore_vote', 'owlto_checkin'],
-    #     ['increase_allowance', 'approve', 'transfer', None]
-    # ]
 
 """
 ----------------------------------------OKX WITHDRAW------------------------------------------
 
     SYMBOL = 'ETH'                      |   Data for withdraw from OKX.
     CHAIN = 'zkSync Era'                |   You can find this data on OKX.
-    FEE = 0.00015                       |   https://www.okx.com/balance/withdrawal
+    FEE = 0.000041                      |   https://www.okx.com/balance/withdrawal
 
     AMOUNT = [0.006, 0.008]             |   Amount from and amount to withdrawal.
     
@@ -103,7 +102,7 @@ class MainSettings:
 class OKXSettings:
     SYMBOL = 'ETH'
     CHAIN = 'zkSync Era'
-    FEE = 0.00015
+    FEE = 0.000041
 
     AMOUNT_WITHDRAW = [0.006, 0.008]
 
@@ -164,8 +163,46 @@ class ModulesSettings:
         PERCENTS = [3, 7]
         
         SWAP_REVERSE = True
+        
+    class Inch:
+        FROM_TOKEN = 'ETH'
+        TO_TOKEN = 'USDC'
+        
+        AMOUNT = [0.0005, 0.0009]
+        DECIMAL = 5
+        
+        USE_PERCENTS = False
+        PERCENTS = [3, 7]
+        
+        SWAP_REVERSE = True
+        
+        API_KEY = 'YOUR_DATA' # https://1inch.dev/portfolio-api/
     
-    class WooFi:
+    class Maverick:
+        FROM_TOKEN = 'ETH'
+        TO_TOKEN = 'USDC'
+        
+        AMOUNT = [0.0005, 0.0009]
+        DECIMAL = 5
+        
+        USE_PERCENTS = False
+        PERCENTS = [3, 7]
+        
+        SWAP_REVERSE = True
+        
+    class Mute:
+        FROM_TOKEN = 'ETH'
+        TO_TOKEN = 'USDC'
+        
+        AMOUNT = [0.0005, 0.0009]
+        DECIMAL = 5
+        
+        USE_PERCENTS = False
+        PERCENTS = [3, 7]
+        
+        SWAP_REVERSE = True
+    
+    class Odos:
         FROM_TOKEN = 'ETH'
         TO_TOKEN = 'USDC'
         

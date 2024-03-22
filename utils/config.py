@@ -40,10 +40,18 @@ with open('data/rubyscore/abi.json', "r") as file:
 with open('data/owlto/abi.json', "r") as file:
     OWLTO_ABI = json.load(file)
 
-with open('data/woofi/abi.json', "r") as file:
-    WOOFI_ABI = json.load(file)
+with open('data/maverick/position.json', "r") as file:
+    MAVERICK_POSITION_ABI = json.load(file)
+
+with open('data/maverick/router.json', "r") as file:
+    MAVERICK_ROUTER_ABI = json.load(file)
+
+with open('data/mute/router.json', "r") as file:
+    MUTE_ROUTER_ABI = json.load(file)
 
 MAX_APPROVE = 2**256 - 1
+
+ETH_MASK = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
@@ -51,8 +59,22 @@ DMAIL_CONTRACT = '0x981F198286E40F9979274E0876636E9144B8FB8E'
 
 OWLTO_CONTRACT = '0xD48e3caf0D948203434646a3f3e80f8Ee18007dc'
 
-WOOFI_CONTRACTS = {
-    "router": "0xfd505702b37Ae9b626952Eb2DD736d9045876417"
+INCH_CONTRACT = {
+    "router": "0x1111111254eeb25477b68fb85ed929f73a960582",
+}
+
+ODOS_CONTRACT = {
+    "router": "0x4bba932e9792a2b917d47830c93a9bc79320e4f7",
+}
+
+MUTE_CONTRACTS = {
+    "router": "0x8B791913eB07C32779a16750e3868aA8495F5964"
+}
+
+MAVERICK_CONTRACTS = {
+    "router": "0x39E098A153Ad69834a9Dac32f0FCa92066aD03f4",
+    "pool": "0x41C8cf74c27554A8972d3bf3D2BD4a14D8B604AB",
+    "pool_information": "0x57D47F505EdaA8Ae1eFD807A860A79A28bE06449",
 }
 
 RUBYSCORE_CONTRACTS = {

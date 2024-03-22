@@ -26,31 +26,43 @@ class Eralend(Account):
         max_percent: int,
         make_withdraw: bool
     ):
-        self.log_send('Make deposit on Eralend.')
+        try:
+            self.log_send('Make deposit on Eralend.')
+            
+            if all_amount:
+                amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
+            else:
+                amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
+            
+            tx = await self.get_tx_data(value=amount_wei)
+            
+            tx.update({'to': self.w3.to_checksum_address(ERALEND_CONTRACTS['landing']), 'data': '0x1249c58b'})
+            
+            tx_status = await self.execute_transaction(tx)
+            
+            if make_withdraw:
+                await async_sleep(SETTINGS.LANDINGS_SLEEP[0], SETTINGS.LANDINGS_SLEEP[1], logs=False)
+                return await self.withdraw()
+            else:
+                return tx_status
         
-        if all_amount:
-            amount_wei, _ = await self.get_percent_amount('ETH', min_percent, max_percent)
-        else:
-            amount_wei, _ = await self.get_random_amount('ETH', min_amount, max_amount, decimal)
-        
-        tx = await self.get_tx_data(value=amount_wei)
-        
-        tx.update({'to': self.w3.to_checksum_address(ERALEND_CONTRACTS['landing']), 'data': '0x1249c58b'})
-        
-        await self.execute_transaction(tx)
-        
-        if make_withdraw:
-            await async_sleep(SETTINGS.LANDINGS_SLEEP[0], SETTINGS.LANDINGS_SLEEP[1], logs=False)
-            await self.withdraw()
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False
     
     @check_gas
     async def withdraw(self):
-        self.log_send('Make withdraw from Eralend.')
-        
-        tx_data = await self.get_tx_data()
-        
-        amount = await self.get_deposit_amount()
+        try:
+            self.log_send('Make withdraw from Eralend.')
+            
+            tx_data = await self.get_tx_data()
+            
+            amount = await self.get_deposit_amount()
 
-        tx = await self.eraland_contract.functions.redeemUnderlying(amount).build_transaction(tx_data)
+            tx = await self.eraland_contract.functions.redeemUnderlying(amount).build_transaction(tx_data)
+            
+            await self.execute_transaction(tx)
         
-        await self.execute_transaction(tx)
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False

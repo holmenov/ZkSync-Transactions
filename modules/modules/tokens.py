@@ -27,12 +27,10 @@ class Tokens(Account):
 
             tx = await token_contract.functions.increaseAllowance(random_address, amount_wei).build_transaction(tx_data)
 
-            await self.execute_transaction(tx)
-            
-            return True
+            return await self.execute_transaction(tx)
 
-        except Exception as error:
-            self.log_send(f'Error when using increase allowance: {error}', status='error')
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
             return False
     
     @check_gas
@@ -50,8 +48,8 @@ class Tokens(Account):
             
             return True
 
-        except Exception as error:
-            self.log_send(f'Error when using random approve: {error}', status='error')
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
             return False
 
     @check_gas
@@ -74,10 +72,8 @@ class Tokens(Account):
                 token_contract = self.get_contract(ZKSYNC_TOKENS[chosen_token], ERC20_ABI)
                 tx = await token_contract.functions.transfer(random_address, amount_wei).build_transaction(tx)
 
-            await self.execute_transaction(tx)
-            
-            return True
+            return await self.execute_transaction(tx)
 
-        except Exception as error:
-            self.log_send(f'Error when using random transfer: {error}', status='error')
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
             return False

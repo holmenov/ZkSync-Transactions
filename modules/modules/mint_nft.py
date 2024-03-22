@@ -9,12 +9,17 @@ class MintNFT(Account):
 
     @check_gas
     async def mint_nft(self, nft_contract: str):
-        self.log_send('Mint NFT.')
+        try:
+            self.log_send('Mint NFT.')
 
-        contract = self.get_contract(nft_contract, MINT_NFT_ABI)
+            contract = self.get_contract(nft_contract, MINT_NFT_ABI)
 
-        tx_data = await self.get_tx_data()
+            tx_data = await self.get_tx_data()
 
-        tx = await contract.functions.mint().build_transaction(tx_data)
+            tx = await contract.functions.mint().build_transaction(tx_data)
 
-        await self.execute_transaction(tx)
+            await self.execute_transaction(tx)
+        
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False

@@ -12,12 +12,17 @@ class OwlTo(Account):
         self.owlto_contract = self.get_contract(OWLTO_CONTRACT, OWLTO_ABI)
         
     async def check_in(self):
-        self.log_send('Check in on OwlTo.')
+        try:
+            self.log_send('Check in on OwlTo.')
+            
+            date = int(datetime.today().strftime('%Y%m%d'))
+            
+            tx_data = await self.get_tx_data()
+            
+            tx = await self.owlto_contract.functions.checkIn(date).build_transaction(tx_data)
+            
+            await self.execute_transaction(tx)
         
-        date = int(datetime.today().strftime('%Y%m%d'))
-        
-        tx_data = await self.get_tx_data()
-        
-        tx = await self.owlto_contract.functions.checkIn(date).build_transaction(tx_data)
-        
-        await self.execute_transaction(tx)
+        except Exception as e:
+            self.log_send(f'Error in module «{__class__.__name__}»: {e}', status='error')
+            return False

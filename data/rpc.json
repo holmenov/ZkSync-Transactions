@@ -2,12 +2,14 @@
     "ethereum": {
         "rpc": "https://rpc.ankr.com/eth",
         "explorer": "https://etherscan.io/tx/",
-        "token": "ETH"
+        "token": "ETH",
+        "chain_id": 1
     },
     
     "zksync": {
         "rpc": "https://rpc.ankr.com/zksync_era",
         "explorer": "https://explorer.zksync.io/tx/",
-        "token": "ETH"
+        "token": "ETH",
+        "chain_id": 324
     }
 }
