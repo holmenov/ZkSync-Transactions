@@ -67,16 +67,27 @@ class MainSettings:
 
     SLEEP_AFTER_WORK = [10, 30]
 
-    SLIPPAGE = 1
+    SLIPPAGE = 5
     
     LANDINGS_SLEEP = [90, 300]
 
     CUSTOM_ROUTES_MODULES = [
+        ['send_mail', 'owlto_checkin', 'wrap_eth'],
+        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
+        ['send_mail', 'owlto_checkin', 'wrap_eth'],
+        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
+        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos'],
         ['deposit_eraland'],
-        ['swap_syncswap'],
-        ['wrap_eth'],
-        ['send_mail', 'rubyscore_vote', 'owlto_checkin'],
-        ['increase_allowance', 'approve', 'transfer', None]
+        ['send_mail', 'owlto_checkin', 'wrap_eth'],
+        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
+        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
+        ['deposit_eraland', None],
+        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
+        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth', None],
     ]
 
 """
@@ -226,13 +237,13 @@ class ModulesSettings:
     class Tokens:
 
         class IncreaseAllowance: # ETH not avaliable
-            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC']
+            TOKENS = ['USDT', 'USDC', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]
             DECIMAL = 7
         
         class Approve: # ETH not avaliable
-            TOKENS = ['USDT', 'USDC', 'DAI', 'WETH', 'WBTC']
+            TOKENS = ['USDT', 'USDC', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]
             DECIMAL = 7

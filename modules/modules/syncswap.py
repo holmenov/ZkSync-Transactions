@@ -63,13 +63,11 @@ class SyncSwap(Account):
             if pool_address == ZERO_ADDRESS:
                 return self.log_send(f'Swap path {from_token} to {to_token} not found!', status='error')
             
-            tx_data = await self.get_tx_data()
-            
-            if from_token == 'ETH':
-                tx_data.update({'value': amount_wei})
-            else:
+            if from_token != 'ETH':
                 await self.approve(amount_wei, token_address, self.w3.to_checksum_address(SYNCSWAP_CONTRACTS['router']))
-                
+            
+            tx_data = await self.get_tx_data(value=amount_wei if from_token == 'ETH' else 0)
+            
             min_amount_out = await self.get_min_amount_out(pool_address, token_address, amount_wei)
             
             steps = [{

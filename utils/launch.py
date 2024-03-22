@@ -57,6 +57,4 @@ async def run_check_balance(data: list):
 
 @repeats
 async def run_module(module: Callable, account_id: int, key: str, proxy: str):
-    succcess_bridge = await module(account_id, key, proxy)
-    if not succcess_bridge: return False
-    return True
+    return await module(account_id, key, proxy)

@@ -36,14 +36,8 @@ def repeats(func):
 
             current_repeat += 1
 
-            if not success or current_repeat == SETTINGS.REPEATS_PER_WALLET:
-                break
+            if not success or current_repeat == SETTINGS.REPEATS_PER_WALLET: break
             
-            await async_sleep(
-                SETTINGS.SLEEP_AFTER_WORK_FROM,
-                SETTINGS.SLEEP_AFTER_WORK_TO,
-                account_id=args[1],
-                key=args[2]
-            )
+            await async_sleep(SETTINGS.SLEEP_AFTER_WORK[0], SETTINGS.SLEEP_AFTER_WORK[1], logs=False)
 
     return wrapper

@@ -21,13 +21,13 @@ from modules.modules.odos import Odos
 
 async def okx_withdraw(account_id: int, key: str, proxy: str):
     okx_withdraw = OKXWithdraw(account_id, key, proxy)
-    await okx_withdraw.withdraw()
+    return await okx_withdraw.withdraw()
 
 async def okx_top_up(account_id: int, key: str, proxy: str):
     amount = OKXSETTINGS.BALANCE_TOP_UP
     
     okx_top_up = OKXTopUp(account_id, key, proxy)
-    await okx_top_up.top_up_balance(amount)
+    return await okx_top_up.top_up_balance(amount)
 
 async def swap_syncswap(account_id, key, proxy):
     from_token = ms.SyncSwap.FROM_TOKEN
@@ -45,7 +45,7 @@ async def swap_syncswap(account_id, key, proxy):
     max_percent = ms.SyncSwap.PERCENTS[1]
     
     syncswap = SyncSwap(account_id, key, proxy)
-    await syncswap.swap(
+    return await syncswap.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
 
@@ -67,7 +67,7 @@ async def swap_inch(account_id, key, proxy):
     api_key = ms.Inch.API_KEY
     
     inch = Inch(account_id, key, proxy, api_key)
-    await inch.swap(
+    return await inch.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
 
@@ -87,7 +87,7 @@ async def swap_maverick(account_id, key, proxy):
     max_percent = ms.Maverick.PERCENTS[1]
     
     maverick = Maverick(account_id, key, proxy)
-    await maverick.swap(
+    return await maverick.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
 
@@ -107,7 +107,7 @@ async def swap_mute(account_id, key, proxy):
     max_percent = ms.Mute.PERCENTS[1]
     
     mute = Mute(account_id, key, proxy)
-    await mute.swap(
+    return await mute.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
     
@@ -127,7 +127,7 @@ async def swap_odos(account_id, key, proxy):
     max_percent = ms.Odos.PERCENTS[1]
     
     odos = Odos(account_id, key, proxy)
-    await odos.swap(
+    return await odos.swap(
         from_token, to_token, min_amount, max_amount, decimal, all_amount, min_percent, max_percent, swap_reverse
     )
 
@@ -143,7 +143,7 @@ async def deposit_eraland(account_id, key, proxy):
     make_withdraw = ms.EraLend.WITHDRAW
     
     eralend = Eralend(account_id, key, proxy)
-    await eralend.deposit(
+    return await eralend.deposit(
         min_amount, max_amount, decimal, all_amount, min_percent, max_percent, make_withdraw
     )
     
@@ -159,27 +159,27 @@ async def wrap_eth(account_id, key, proxy):
     unwrap_eth = ms.WrapETH.UNWRAP_ETH
     
     wrap_eth = WrapETH(account_id, key, proxy)
-    await wrap_eth.wrap_eth(
+    return await wrap_eth.wrap_eth(
         min_amount, max_amount, decimal, all_amount, min_percent, max_percent, unwrap_eth
     )
 
 async def send_mail(account_id, key, proxy):
     dmail = Dmail(account_id, key, proxy)
-    await dmail.send_mail()
+    return await dmail.send_mail()
 
 async def mint_nft(account_id, key, proxy):
     nft_address = ms.MintNFT.NFT_ADDRESS
     
     mint_nft = MintNFT(account_id, key, proxy)
-    await mint_nft.mint_nft(nft_address)
+    return await mint_nft.mint_nft(nft_address)
 
 async def rubyscore_vote(account_id, key, proxy):
     rubyscore = RubyScore(account_id, key, proxy)
-    await rubyscore.vote()
+    return await rubyscore.vote()
 
 async def owlto_checkin(account_id, key, proxy):
     owlto = OwlTo(account_id, key, proxy)
-    await owlto.check_in()
+    return await owlto.check_in()
 
 async def increase_allowance(account_id, key, proxy):
     tokens = ms.Tokens.IncreaseAllowance.TOKENS
