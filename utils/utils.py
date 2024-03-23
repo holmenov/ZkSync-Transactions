@@ -1,13 +1,16 @@
 import asyncio
+import io
 import random
 import secrets
 import sys
 import eth_account
 from loguru import logger
+import pandas as pd
 from web3 import Web3
+import msoffcrypto
 
-from utils.config import ACCOUNTS, PROXIES
 from settings import MainSettings as SETTINGS
+from utils.config import API_KEYS
 
 
 async def async_sleep(sleep_from: int, sleep_to: int, logs: bool = True, account_id: int = 0, key: str = '', msg: str = ''):
@@ -32,38 +35,73 @@ def get_wallet_address(key: str) -> str:
     account = eth_account.Account.from_key(key)
     return account.address
 
-def get_wallets():
-    if SETTINGS.USE_PROXY:
-        if len(ACCOUNTS) != len(PROXIES):
-            logger.error('The number of wallets and proxies does not match.')
+def parse_api_keys(password: str | None = None) -> dict:
+    decrypted_data = io.BytesIO()
+    with open('wallets_data.xlsx', 'rb') as file:
+        if SETTINGS.EXCEL_PASSWORD:
+            office_file = msoffcrypto.OfficeFile(file)
+            
+            try:
+                office_file.load_key(password=password)
+                office_file.decrypt(decrypted_data)
+            except msoffcrypto.exceptions.DecryptionError:
+                logger.error('Incorrect password to decrypt Excel file or you need set password to file!')
+                sys.exit()
+        
+        try:
+            wb = pd.read_excel(decrypted_data if SETTINGS.EXCEL_PASSWORD else file, sheet_name='API')
+        except ValueError:
+            logger.error('Incorrect page name in Excel file!')
+            sys.exit()
+        
+        API_KEYS['okx_secret_key'] = str(wb.iloc[0]['DATA'])
+        API_KEYS['okx_api_key'] = str(wb.iloc[1]['DATA'])
+        API_KEYS['okx_passphrase'] = str(wb.iloc[2]['DATA'])
+        
+        API_KEYS['inch_api_key'] = str(wb.iloc[4]['DATA'])
+
+def parse_wallets():
+    decrypted_data = io.BytesIO()
+    with open('wallets_data.xlsx', 'rb') as file:
+        if SETTINGS.EXCEL_PASSWORD:
+            office_file = msoffcrypto.OfficeFile(file)
+            
+            password = str(input(f'🛡️ Enter the password for the Excel file:'))
+            
+            try:
+                office_file.load_key(password=password)
+                office_file.decrypt(decrypted_data)
+            except msoffcrypto.exceptions.DecryptionError:
+                logger.error('Incorrect password to decrypt Excel file or you need set password to file!')
+                sys.exit()
+        
+        try:
+            wb = pd.read_excel(decrypted_data if SETTINGS.EXCEL_PASSWORD else file, sheet_name='WALLETS')
+        except ValueError:
+            logger.error('Incorrect page name in Excel file!')
             sys.exit()
     
-    elif len(ACCOUNTS) < 1:
-        logger.error('It seems you forgot to enter the wallets.')
-        sys.exit()
-    
-    accounts_proxy = dict(zip(ACCOUNTS, PROXIES)) if SETTINGS.USE_PROXY else ACCOUNTS
-
-    wallets = [
-        {
+    wallets = []
+    for _id, row in wb.iterrows():
+        _id += 1
+        
+        current_wallet = {
             'id': _id,
-            'key': key,
-            'proxy': accounts_proxy[key] if SETTINGS.USE_PROXY else None
-        } for _id, key in enumerate(accounts_proxy, start=1)
-    ]
+            'key': str(row['Private Key']) if not pd.isnull(row['Private Key']) else None,
+            'proxy': str(row['Proxy']) if not pd.isnull(row['Proxy']) else None
+        }
+        
+        if not current_wallet['key']:
+            continue
 
+        if not current_wallet['proxy'] and SETTINGS.USE_PROXY:
+            continue
+        
+        wallets.append(current_wallet)
+    
+    if not wallets:
+        logger.error(f'No wallets were found. Check the entered data!')
+    
+    parse_api_keys(password if SETTINGS.EXCEL_PASSWORD else None)
+    
     return wallets
-
-def remove_wallet_from_files(account_to_remove: str, proxy_to_remove: str):
-    with open('accounts.txt', 'r', encoding='utf-8') as accounts_file:
-        accounts = accounts_file.readlines()
-    with open('proxy.txt', 'r', encoding='utf-8') as proxy_file:
-        proxies = proxy_file.readlines()
-    
-    cleared_accounts = [account for account in accounts if account.strip() != account_to_remove]
-    cleared_proxies = [proxy for proxy in proxies if proxy.strip() != proxy_to_remove]
-    
-    with open('accounts.txt', 'w', encoding='utf-8') as accounts_file:
-        accounts_file.writelines(cleared_accounts)
-    with open('proxy.txt', 'w', encoding='utf-8') as proxy_file:
-        proxy_file.writelines(cleared_proxies)

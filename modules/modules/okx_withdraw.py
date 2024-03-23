@@ -6,7 +6,7 @@ import aiohttp
 
 from modules.account import Account
 from settings import OKXSettings
-from utils.config import ZKSYNC_TOKENS
+from utils.config import ZKSYNC_TOKENS, API_KEYS
 from utils.utils import async_sleep
 
 
@@ -18,9 +18,9 @@ class OKXWithdraw(Account):
         self.amount = round(random.uniform(OKXSettings.AMOUNT_WITHDRAW[0], OKXSettings.AMOUNT_WITHDRAW[1]), 5)
         self.fee = OKXSettings.FEE
         self.chain = OKXSettings.CHAIN
-        self.api_key = OKXSettings.API_KEY
-        self.secret_key = OKXSettings.SECRET_KEY
-        self.passphrase = OKXSettings.PASSPHRASE
+        self.api_key = API_KEYS['okx_api_key']
+        self.secret_key = API_KEYS['okx_secret_key']
+        self.passphrase = API_KEYS['okx_passphrase']
         self.dest = 4
     
     async def wait_until_change_balance(self):

@@ -4,7 +4,7 @@ import questionary
 import sys
 
 from utils.launch import run_check_balance, start_tasks
-from utils.utils import get_wallets
+from utils.utils import parse_wallets
 from utils.modules import *
 
 
@@ -59,14 +59,14 @@ def main():
         pointer='➡️ '
     ).ask()
     
-    data = get_wallets()
+    wallets_data = parse_wallets()
     
     if selected_mode in submenus:
         selected_mode = show_submenu(selected_mode)
-        asyncio.run(start_tasks(data, selected_mode))
-    elif selected_mode == 'balance-checker': asyncio.run(run_check_balance(data))
+        asyncio.run(start_tasks(wallets_data, selected_mode))
+    elif selected_mode == 'balance-checker': asyncio.run(run_check_balance(wallets_data))
     elif selected_mode == 'exit': sys.exit()
-    else: asyncio.run(start_tasks(data, None))
+    else: asyncio.run(start_tasks(wallets_data, None))
 
 if __name__ == '__main__':
     logger.add('logs.log')

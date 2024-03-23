@@ -7,15 +7,13 @@
 
     RANDOM_WALLETS - True | Take the wallets in random order.
 
-    REMOVE_WALLET - True | To delete wallets after work or not. (IF NOT - SET FALSE).
+    EXCEL_PASSWORD = False | Use password on Excel file or not.
 
     USE_PROXY - True | Use proxy or not.
 
     START_PERIOD = [1, 600] | The time period in which the wallets will be run.
         For example, wallets will be launched with a timer from 1 to 600 seconds after software launch.
             The first value is from, the second is to.
-    
-    REPEATS_PER_WALLET = 5 | The number of repetitions of each module.
     
     SLEEP_AFTER_WORK = [10, 30] | Sleeps after each module. A random number between 10 and 30 is selected.
     
@@ -57,37 +55,27 @@ class MainSettings:
 
     RANDOM_WALLETS = True
 
-    REMOVE_WALLET = True
+    EXCEL_PASSWORD = False
 
     USE_PROXY = True
 
     START_PERIOD = [1, 600]
-    
-    REPEATS_PER_WALLET = 1
 
     SLEEP_AFTER_WORK = [10, 30]
 
     SLIPPAGE = 5
     
-    LANDINGS_SLEEP = [90, 300]
+    LANDINGS_SLEEP = [30, 90]
 
     CUSTOM_ROUTES_MODULES = [
         ['send_mail', 'owlto_checkin', 'wrap_eth'],
-        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
-        ['send_mail', 'owlto_checkin', 'wrap_eth'],
-        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
         ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos'],
-        ['deposit_eraland'],
+        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
         ['send_mail', 'owlto_checkin', 'wrap_eth'],
-        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
-        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
-        ['deposit_eraland', None],
-        ['send_mail', 'owlto_checkin', 'wrap_eth', None],
-        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos', None],
+        ['swap_syncswap', 'swap_inch', 'swap_maverick', 'swap_mute', 'swap_odos'],
         ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
         ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
-        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth'],
-        ['approve', 'increase_allowance', 'rubyscore_vote', 'send_mail', 'wrap_eth', None],
     ]
 
 """
@@ -103,9 +91,8 @@ class MainSettings:
     
     WAIT_UNTIL_BALANCE_CREDITED = True  |   Wait until for tokens credited to move next modules.
     
-    SECRET_KEY = 'YOUR_DATA'            |   Get your API data here:
-    API_KEY = 'YOUR_DATA'               |   https://www.okx.com/account/my-api
-    PASSPHRASE = 'YOUR_DATA'            |   Paste your secret, api keys and passphrase.
+    Get your API data here: https://www.okx.com/account/my-api
+    Paste your secret, api keys and passphrase in wallets_data.xlsx.
 
 ----------------------------------------------------------------------------------------------
 """
@@ -120,10 +107,6 @@ class OKXSettings:
     BALANCE_TOP_UP = 0.01
 
     WAIT_UNTIL_BALANCE_CREDITED = True
-
-    SECRET_KEY = 'YOUR_DATA'
-    API_KEY = 'YOUR_DATA'
-    PASSPHRASE = 'YOUR_DATA'
 
 """
 --------------------------------------------------MODULE SETTINGS--------------------------------------------------
@@ -174,7 +157,9 @@ class ModulesSettings:
         PERCENTS = [3, 7]
         
         SWAP_REVERSE = True
-        
+    
+    # For work get API-KEY: https://1inch.dev/portfolio-api/
+    # Paste your api key in wallets_data.xlsx.
     class Inch:
         FROM_TOKEN = 'ETH'
         TO_TOKEN = 'USDC'
@@ -186,8 +171,6 @@ class ModulesSettings:
         PERCENTS = [3, 7]
         
         SWAP_REVERSE = True
-        
-        API_KEY = 'YOUR_DATA' # https://1inch.dev/portfolio-api/
     
     class Maverick:
         FROM_TOKEN = 'ETH'
@@ -236,13 +219,15 @@ class ModulesSettings:
     
     class Tokens:
 
-        class IncreaseAllowance: # ETH not avaliable
+        # ETH Not avaliable.
+        class IncreaseAllowance: 
             TOKENS = ['USDT', 'USDC', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]
             DECIMAL = 7
         
-        class Approve: # ETH not avaliable
+        # ETH Not avaliable.
+        class Approve:
             TOKENS = ['USDT', 'USDC', 'WETH', 'WBTC']
 
             AMOUNT = [0.000025, 0.000045]

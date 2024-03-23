@@ -15,7 +15,7 @@ from utils.utils import async_sleep
 
 
 class Account:
-    def __init__(self, account_id: int, private_key: str, proxy: str | None, chain: str = 'zksync') -> None:
+    def __init__(self, account_id: int, private_key: str, proxy: str | None, chain: str = 'zksync'):
         self.account_id = account_id
         self.private_key = private_key
         

@@ -10,12 +10,6 @@ with open('data/erc20_abi.json', 'r') as file:
 with open('data/dmail/abi.json', 'r') as file:
     DMAIL_ABI = json.load(file)
     
-with open('accounts.txt', 'r') as file:
-    ACCOUNTS = [row.strip() for row in file]
-    
-with open("proxy.txt", "r") as file:
-    PROXIES = [row.strip() for row in file]
-    
 with open("data/eralend/abi.json", "r") as file:
     ERALEND_ABI = json.load(file)
     
@@ -49,6 +43,13 @@ with open('data/maverick/router.json', "r") as file:
 with open('data/mute/router.json', "r") as file:
     MUTE_ROUTER_ABI = json.load(file)
 
+API_KEYS = {
+    'okx_secret_key': None,
+    'okx_api_key': None,
+    'okx_passphrase': None,
+    'inch_api_key': None
+}
+
 MAX_APPROVE = 2**256 - 1
 
 ETH_MASK = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -58,10 +59,6 @@ ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 DMAIL_CONTRACT = '0x981F198286E40F9979274E0876636E9144B8FB8E'
 
 OWLTO_CONTRACT = '0xD48e3caf0D948203434646a3f3e80f8Ee18007dc'
-
-INCH_CONTRACT = {
-    "router": "0x1111111254eeb25477b68fb85ed929f73a960582",
-}
 
 ODOS_CONTRACT = {
     "router": "0x4bba932e9792a2b917d47830c93a9bc79320e4f7",

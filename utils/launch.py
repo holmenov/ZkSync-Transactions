@@ -4,9 +4,8 @@ from typing import Callable
 from loguru import logger
 
 from utils.modules import *
-from utils.utils import async_sleep, remove_wallet_from_files
+from utils.utils import async_sleep
 from settings import MainSettings as SETTINGS
-from utils.wrappers import repeats
 
 
 async def start_tasks(data: list, module: Callable = None):
@@ -38,8 +37,6 @@ async def run_main_proccesses(account_id: int, key: str, proxy: str, module: Cal
             if not choiced_module: continue
             
             await run_module(eval(choiced_module), account_id, key, proxy)
-    
-    if SETTINGS.REMOVE_WALLET: remove_wallet_from_files(key, proxy)
 
 
 async def run_check_balance(data: list):
@@ -55,6 +52,5 @@ async def run_check_balance(data: list):
     logger.success(f'💰 Balance of all accounts in zkSync: {round(all_balances, 6)} $ETH.')
 
 
-@repeats
 async def run_module(module: Callable, account_id: int, key: str, proxy: str):
     return await module(account_id, key, proxy)

@@ -1,15 +1,15 @@
 from modules.account import Account
 from settings import MainSettings as SETTINGS
-from utils.config import ZKSYNC_TOKENS, ETH_MASK, INCH_CONTRACT
+from utils.config import ZKSYNC_TOKENS, ETH_MASK, API_KEYS
 from utils.utils import async_sleep
 from utils.wrappers import check_gas
 
 
 class Inch(Account):
-    def __init__(self, account_id: int, private_key: str, proxy: str | None, api_key: str) -> None:
+    def __init__(self, account_id: int, private_key: str, proxy: str | None) -> None:
         super().__init__(account_id, private_key, proxy)
         
-        self.api_key = api_key
+        self.api_key = API_KEYS['inch_api_key']
     
     async def get_contract_address(self):
         url = f"https://api.1inch.dev/swap/v5.2/{self.chain_id}/approve/spender"
